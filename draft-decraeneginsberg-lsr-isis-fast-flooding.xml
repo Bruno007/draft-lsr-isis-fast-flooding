@@ -337,8 +337,8 @@
 		</t>
 		<t>Type: TBD1</t>
 		<t>Length: variable, the size in octets of the Value field</t>
-		<t>Value: Onee or more sub-TLVs</t>
-		<t>Two sub-TLVs are defined in this document. The support of any sub-TLV is OPTIONAL.</t>
+		<t>Value: One or more sub-TLVs</t>
+		<t>Several sub-TLVs are defined in this document. The support of any sub-TLV is OPTIONAL.</t>
 		<t>
 			For a given IS-IS adjacency, the Flooding
 			Parameters TLV does not need to be advertised
@@ -393,6 +393,27 @@
 			<t>When the O flag is set, the LSP will be acknowledged in the order they are received: a PSNP acknowledging N LSPs is acknowledging the N oldest LSPs received. The order inside the PSNP is meaningless. If the sender keeps track of the order to LSP sent, this indication allows a fast detection of loss of LSP. This MUST NOT be used to trigger faster retransmission of LSP. This MAY be used to trigger a congestion signal.</t>
 		</section>
 
+
+      <section anchor="partialSNPI" title="Partial SNP Interval sub-TLV">
+        <t>The Partial SNP Interval sub-TLV advertises the amount of
+	time in milliseconds between periodic action for transmission of Partial
+        Sequence Number PDUs. This time will trigger the sending of a PSNP
+        even if the number of unacknowledged LSPs received on a given
+        interface does not exceed LPP (<xref target="LPP"/>). The time is
+	measured from the reception of the first unacknowldeged LSP.</t>
+
+        <t>Type: 5</t>
+
+        <t>Length: 2 octets</t>
+
+        <t>Value: partialSNPInterval in milliseconds</t>
+
+        <t>A node advertising this sub-TLV SHOULD send a PSNP at least once
+        per Partial SNP Interval if one or more unacknowledged LSPs have been
+        received on a given interface.</t>
+      </section>
+
+
 		<section anchor="TLVoperationLAN" title="Operation on a LAN interface">
 			<t>On a LAN interface, all LSPs are link-level multicasts. Each LSP sent will be received by all ISs on the LAN and each IS will receive LSPs from all transmitters. In this section, we clarify how the flooding parameters should be interpreted in the context of a LAN.</t>
 			<t>An LSP receiver on a LAN will communicate its desired flooding parameters using a single Flooding Parameters TLV, copies of which will be received by all transmitters. The flooding parameters sent by the LSP receiver MUST be understood as instructions from the receiver to each transmitter about the desired maximum transmit characteristics of each transmitter. The receiver is aware that there are multiple transmitters that can send LSPs to the receiver LAN interface. The receiver might want to take that into account by advertising more conservative values, e.g. a higher LSP Transmission Interval. When the transmitters receive the LSP Transmission Interval value advertised by a LSP receiver, the transmitters should rate limit LSPs according to the advertised flooding parameters. They should not apply any further interpretation to the flooding parameters advertised by the receiver.</t>
@@ -405,8 +426,8 @@
 
 	</section>
 
-	<section anchor="Receiver" title="Performance improvement on the receiver">
 
+	<section anchor="Receiver" title="Performance improvement on the receiver">
 		<t>This section defines two behaviors that SHOULD be implemented on the receiver.</t>
 
 
@@ -602,6 +623,7 @@ cur_rtt = 7/8 * cur_rtt + 1/8 * rtt_est
 			</section>
 		</section>
 
+
 		<section anchor="sec_determining_values" title="Determining values to be advertised in the Flooding Parameters TLV">
 			<t>The values that a receiver advertises do not need to be perfect. If the values are too low then the transmitter will not use the full bandwidth or available CPU resources. If the values are too high then the receiver may drop some LSPs during the first RTT and this loss will reduce the usable receive window and the protocol mechanisms will allow the adjacency to recover. Flooding several orders of magnitude slower than both nodes can achieve will hurt performance, as will consistently overloading the receiver.</t>
 			<t>The values advertised need not be dynamic as feedback is provided by the acknowledgment of LSPs in SNP messages. Acknowledgments provide a feedback loop on how fast the LSPs are processed by the receiver. They also signal that the LSPs can be removed from receive window, explicitly signaling to the sender that more LSPs may be sent. By advertising relatively static parameters, we expect to produce overall flooding behavior similar to what might be achieved by manually configuring per-interface LSP rate limiting on all interfaces in the network. The advertised values may be based, for example, on an offline tests of the overall LSP processing speed for a particular set of hardware and the number of interfaces configured for IS-IS. With such a formula, the values advertised in the Flooding Parameters TLV would only change when additional IS-IS interfaces are configured.</t>
@@ -615,49 +637,98 @@ cur_rtt = 7/8 * cur_rtt + 1/8 * rtt_est
 		</section>
 	</section>
 	<section anchor="ControlExample2" title="Congestion Control algorithm: Example 2">
+	          <t>This section describes a congestion control algorithm based on
+        performance measured by the transmitter without dependance on
+        signaling from the receiver.</t>
 
-		<t>When flow control is necessary, it can be implemented in a
-        straightforward manner based on knowledge of the current flooding rate
-        and the current acknowledgement rate. Such an algorithm is a local
-        matter and there is no requirement or intent to standardize an
-        algorithm. There are a number of aspects which serve as guidelines
-        which can be described.</t>
+        <section anchor="Ex2-arch" title="Router Architecture Discussion">
+          <t>(The following description is an abstraction - implementation
+          details vary.)</t>
 
-		<t>A maximum target LSP transmission rate (LSPTxMax) SHOULD be
-        configurable. This represents the fastest LSP transmission rate which
-        will be attempted. This value SHOULD be applicable to all interfaces
-        and and SHOULD be consistent network wide.</t>
+          <t>Existing router architectures may utilize multiple input queues.
+          On a given line card, IS-IS PDUs from multiple interfaces may be
+          placed in a rate limited input queue. This queue may be dedicated to
+          IS-IS PDUs or may be shared with other routing related packets.</t>
 
-		<t>When the current rate of LSP transmission (LSPTxRate) exceeds the
-        capabilities of the receiver, the flow control algorithm needs to
-        aggressively reduce the LSPTxRate within a few seconds. Slower
-        responsiveness is likely to result in a large number of
-        retransmissions which can introduce much larger delays in
-        convergence.</t>
+          <t>The input queue may then pass IS-IS PDUs to a "punt queue" which
+          is used to pass PDUs from the data plane to the control plane. The
+          punt queue typically also has controls on its size and the rate at
+          which packets will be punted.</t>
 
-		<t>NOTE: Even with modest increases in flooding speed (for example, a
-        target LSPTxMax of 300 LSPs/second (10 times the typical rate
-        supported today)), a topology change triggering 2100 new LSPs would
-        only take 7 seconds to complete.</t>
+          <t>An input queue in the control plane may then be used to assemble
+          PDUs from multiple linecards, separate the IS-ISs PDU from other
+          types of packets, and place the IS-IS PDUs in an input queue
+          dedicated to the IS-IS protocol.</t>
 
-		<t>Dynamic adjustment of the rate of LSP transmission (LSPTxRate)
-        upwards (i.e., faster) SHOULD be done less aggressively and only be
-        done when the neighbor has demonstrated its ability to sustain the
-        current LSPTxRate.</t>
+          <t>The IS-IS input queue then separates the IS-IS PDUs and directs
+          them to an instance specific processing queue. The instance
+          specififc processing queue may then further separate the IS-IS PDUs
+          by type (IIHs, SNPs, and LSPs) so that separate processing threads
+          with varying priorities may be employed to process the incoming
+          PDUs.</t>
 
-		<t>The flow control algorithm MUST NOT assume the receive capabilities
-        of a neighbor are static, i.e., it MUST handle transient conditions
-        which result in a slower or faster receive rate on the part of a
-        neighbor.</t>
+          <t>In such an architecture, it may be difficult for IS-IS in the
+          control plane to accurately track the state of the various input
+          queues and determine what value should be advertised as a current
+          receive window.</t>
 
-		<t>The flow control algorithm needs to consider the expected delay
-        time in receiving an acknowledgment. See <xref target="LSPACKRate"/>
-.
-        This may vary per neighbor.</t>
+          <t>The following section describes a congestion control algorithm
+          based on performance measured by the transmitter without dependance
+          on signaling from the receiver.</t>
+        </section>
 
+        <section anchor="Ex2-tx" title="Transmitter Based Flow Control">
+          <t>The congestion control algorithm described in this section does
+          not depend upon direct signaling from the receiver. Instead it
+          adapts the tranmsmission rate based on measurement of the actual
+          rate of acknowledgments received.</t>
+
+          <t>When flow control is necessary, it can be implemented in a
+          straightforward manner based on knowledge of the current flooding
+          rate and the current acknowledgement rate. Such an algorithm is a
+          local matter and there is no requirement or intent to standardize an
+          algorithm. There are a number of aspects which serve as guidelines
+          which can be described. </t>
+
+          <t>A maximum target LSP transmission rate (LSPTxMax) SHOULD be
+          configurable. This represents the fastest LSP transmission rate
+          which will be attempted. This value SHOULD be applicable to all
+          interfaces and SHOULD be consistent network wide.</t>
+
+          <t>When the current rate of LSP transmission (LSPTxRate) exceeds the
+          capabilities of the receiver, the flow control algorithm needs to
+          aggressively reduce the LSPTxRate within a few seconds. Slower
+          responsiveness is likely to result in a large number of
+          retransmissions which can introduce much larger delays in
+          convergence.</t>
+
+          <t>NOTE: Even with modest increases in flooding speed (for example,
+          a target LSPTxMax of 300 LSPs/second (10 times the typical rate
+          supported today)), a topology change triggering 2100 new LSPs would
+          only take 7 seconds to complete.</t>
+
+          <t>Dynamic adjustment of the rate of LSP transmission (LSPTxRate)
+          upwards (i.e., faster) SHOULD be done less aggressively and only be
+          done when the neighbor has demonstrated its ability to sustain the
+          current LSPTxRate.</t>
+
+          <t>The flow control algorithm MUST NOT assume the receive
+          capabilities of a neighbor are static, i.e., it MUST handle
+          transient conditions which result in a slower or faster receive rate
+          on the part of a neighbor.</t>
+
+          <t>The flow control algorithm needs to consider the expected delay
+          time in receiving an acknowledgment. It therefore incorporates the
+          neighbor partialSNPInterval(<xref target="partialSNPI"/>) to help
+          determine whether acknowlegments are keeping pace with the rate of
+          LSPs transmitted. In the absence of an advertisement of
+          partialSNPInterval a locally configured value can be used.</t>
 	</section>
-</section>
-<section anchor="IANA_Consideration" title="IANA Considerations">
+      </section>
+    </section>
+
+    <section anchor="IANA_Consideration" title="IANA Considerations">
+
 
 	<t>IANA is requested to allocate one TLV from the IS-IS TLV codepoint registry.</t>
 	<figure anchor="IANA_Registration" title=''>
@@ -686,11 +757,30 @@ cur_rtt = 7/8 * cur_rtt + 1/8 * rtt_est
 		<c>LSPs Per PSNP</c>
 		<c>4</c>
 		<c>Flags</c>
-		<c>5-255</c>
+		<c>5</c>
+		<c>Partial SNP Interval</c>
+		<c>6-255</c>
 		<c>Unassigned</c>
 	</texttable>
-</section>
-<section anchor="Security" title="Security Considerations" toc="default">
+      <t>This document also requests IANA to create a new registry for
+      assigning Flag bits advertised in the Flags sub-TLV.</t>
+
+      <t>Name: Flooding Parameters Flags Bits.</t>
+
+      <t>Registration Procedure:</t>
+
+      <t>Expert Review Expert(s): TBD</t>
+
+      <t><figure>
+          <artwork><![CDATA[+--------+------------------------+
+| Bit #  |  Description           |
++--------|------------------------+
+|  0     |  O Flag                |
++--------|------------------------+]]></artwork>
+        </figure></t>
+    </section>
+    <section anchor="Security" title="Security Considerations" toc="default">
+
 	<t>
     Security concerns for IS-IS are addressed in <xref target="ISO10589"/>
 ,
@@ -753,5 +843,27 @@ cur_rtt = 7/8 * cur_rtt + 1/8 * rtt_est
 <t>00: Initial version.</t>
 
 </section>
+    <section anchor="open-issues" title="Issues for Further Discussion">
+      <t>[RFC Editor: Please remove this section before publication]</t>
+
+      <t>This section captures issues which the authors either have not yet
+      had time to address or on which the authors have not yet reached
+      consensus. Future revisions of this document may include new/altered
+      text relevant to these issues.</t>
+
+      <t>Issue 1: Placement of the discussion of LPP <xref target="LPP"/>may
+      become congestion control algorithm specific.</t>
+
+      <t>Issue 2: Further discussion of the relevance of the router
+      architecture to feasibility of different flow/congeston control
+      algorithms.</t>
+
+      <t>Issue 3: Discussion of LAN belongs in a separate section - not
+      bundled w the new TLV description.</t>
+
+      <t>Issue 4: Description of new TLV should not limit values advertised
+      to receive only.</t>
+
+    </section>
 </back>
 </rfc>
