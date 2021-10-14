@@ -549,7 +549,7 @@
 		</figure>
 		<t>The algorithm starts with cwin := LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin. Thus, the sending rate roughly increases linearly with the RTT. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
 
-		<t>When updating cwin, it must not become higher than the number of LSPs on the tx queue, otherwise, the sending will not be paced by the receiving of acks. Said differently, tx pressure is needed to maintain and increase cwin.</t>
+		<t>When updating cwin, it must not become higher than the number of LSPs waiting to be sent, otherwise the sending will not be paced by the receiving of acks. Said differently, tx pressure is needed to maintain and increase cwin.</t>
 
 		<t>When the congestion signal is triggered, cwin is set back to its initial value and the congestion avoidance phase starts again.</t>
 	</section>
@@ -562,7 +562,7 @@
 		<t>There can be a timer per LSP, but this can become costly for implementations. It is possible to use only a single timer t1 for every LSPs: during t1, sent LSPs are recorded in a list list_1. Once the RTT is over, list_1 is kept and another list list_2 is used to store the next LSPs. LSPs are removed from the lists when acked. At the end of the second t1 period, every LSP in list_1 should have been acked, so list_1 is checked to be empty. list_1 can then be reused for the next RTT.</t>
 		<t>There are multiple strategies to set the timeout value t1. It should be based on measures of the maximum acknowledgement time (MAT) of each PSNPs. The simplest one is to use a exponential moving average of the MATs, like <xref target="RFC6298">RFC 6298</xref>. A more elaborate one is to take a running maximum of the MATs over a period of time of a few seconds. This value should include a margin of error to avoid false positives (e.g. estimated MAT measure variance) which would have a significant impact on performance.</t>
 
-		<t> Reordering: a sender can record its sending order and check that acknowledgements arrive on the same order than LSPs. This makes an additional assumption and should ideally be backed up by a confirmation by the receiver that this assumption stands (e.g. via a TLV, or explicit configuration).</t>
+		<t> Reordering: a sender can record its sending order and check that acknowledgements arrive on the same order than LSPs. This makes an additional assumption and should ideally be backed up by a confirmation by the receiver that this assumption stands. The O flag defined in <xref target="Flags"/> serves this purpose. </t>
 
 	</section>
 	<section anchor="CC1Refinement1" title="Refinement 1">
