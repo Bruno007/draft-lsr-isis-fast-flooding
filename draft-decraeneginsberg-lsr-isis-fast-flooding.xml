@@ -36,6 +36,7 @@
 					<country>USA</country>
 				</postal>
 
+
 				<email>ginsberg@cisco.com</email>
 			</address>
 		</author>
@@ -325,6 +326,7 @@
 
 
 
+
 	<section anchor="FloodingTLV" title="Flooding Parameters TLV">
 		<t>
 		    This document defines a new Type-Length-Value
@@ -337,8 +339,10 @@
 		</t>
 		<t>Type: TBD1</t>
 		<t>Length: variable, the size in octets of the Value field</t>
+
 		<t>Value: One or more sub-TLVs</t>
 		<t>Several sub-TLVs are defined in this document. The support of any sub-TLV is OPTIONAL.</t>
+
 		<t>
 			For a given IS-IS adjacency, the Flooding
 			Parameters TLV does not need to be advertised
@@ -367,6 +371,7 @@
 			<t>Length: 4 octets</t>
 			<t>Value: minimum interval, in micro-seconds, between two consecutive LSPs sent after the burst window has been used</t>
 			<t>The LSP Transmission Interval is an advertisement of the receiver's steady-state LSP reception rate.</t>
+
 		</section>
 		<section anchor="LPP" title="LSPs Per PSNP sub-TLV">
 			<t>The LSP per PSNP (LPP) sub-TLV advertises the number of received LSPs that triggers the immediate sending of a PSNP to acknowledge them.</t>
@@ -428,6 +433,7 @@
 
 
 	<section anchor="Receiver" title="Performance improvement on the receiver">
+
 		<t>This section defines two behaviors that SHOULD be implemented on the receiver.</t>
 
 
@@ -454,6 +460,7 @@
         can be sent on an interface.</t>
 		</section>
 
+
 		<section anchor="PKTPRI" title="Packet Prioritization on Receive">
 			<t>There are three classes of PDUs sent by IS-IS:</t>
 
@@ -462,6 +469,7 @@
 					<t>Hellos</t>
 
 					<t>LSPs</t>
+
 
 					<t>Complete Sequence Number PDUs (CSNPs) and PSNPs</t>
 				</list>Implementations today may prioritize the reception of Hellos
@@ -533,6 +541,7 @@
 		    rwin never goes negative.
 				</t>
 
+
 				<section anchor="TLVoperationP2P" title="Operation on a point to point interface">
 
 					<t>By sending the LSP Burst Window sub-TLV, a node advertises to its neighbor its ability to receive that many un-acknowledged LSPs from the neighbor, with no separation interval. This is akin to a receive window or sliding window in flow control. In some implementations, this value should reflect the IS-IS socket buffer size. Special care must be taken to leave space for CSNP and PSNP (SNP) PDUs and IIHs if they share the same input queue. In this case, this document suggests advertising an LSP Burst Window corresponding to half the size of the IS-IS input queue. </t>
@@ -544,85 +553,86 @@
 					<t>If either the LSP transmitter or receiver does not adhere to these parameters, for example because of transient conditions, this causes no fatal condition to the operation of IS-IS. In the worst case, an LSP is lost at the receiver and this situation is already remedied by mechanisms in <xref target="ISO10589"/>
 . After a few seconds, neighbors will exchange PSNPs (for point to point interfaces) or CSNPs (for broadcast interfaces) and recover from the lost LSPs. This worst case should be avoided as those additional seconds impact convergence time as the LSDB is not fully synchronized. Hence it is better to err on the conservative side and to under-run the receiver rather than over-run it.</t>
 
+
 				</section>
 
 
+
+		</section>
+		<section anchor="CongestionControl" title="Congestion control">
+		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link which is typically over-sized compared to the capability of the IS-IS speakers.</t>
+			<t>This section describes one congestion control algorithm largely inspired by the TCP congestion control algorithm <xref target="RFC5681">RFC 5681</xref>.</t>
+			<t>The proposed algorithm uses a variable congestion window 'cwin'. It plays a role similar to the receive window described above. The main difference is that cwin is dynamically changed according to various events described below.</t>
+
+			<section anchor="CC1Core" title="Core algorithm">
+				<t>In its simplest form, the congestion control algorithm looks like the following:</t>
+				<figure anchor="cc1_core_algo">
+					<artwork>
+   +---------------+
+   |               |
+   |               v
+   |   +----------------------+
+   |   | Congestion avoidance |
+   |   + ---------------------+
+   |               |
+   |               | Congestion signal
+   ----------------+
+					</artwork>
+				</figure>
+				<t>The algorithm starts with cwin := LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin. Thus, the sending rate roughly increases linearly with the RTT. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
+
+				<t>When updating cwin, it must not become higher than the number of LSPs waiting to be sent, otherwise the sending will not be paced by the receiving of acks. Said differently, tx pressure is needed to maintain and increase cwin.</t>
+
+				<t>When the congestion signal is triggered, cwin is set back to its initial value and the congestion avoidance phase starts again.</t>
+			</section>
+			<section anchor="CC1CongestionSignals" title="Congestion signals">
+				<t>The congestion signal can take various forms. The more reactive the congestion signals, the less LSPs will be lost due to congestion. However, congestion signals too aggressive will cause a sender to keep a very low sending rate even without actual congestion on the path.</t>
+
+				<t>Two practical signals are given hereafter.</t>
+
+				<t>Timers: when receiving acknowledgements, a sender estimates the acknowledgement time of the receiver. Based on this estimation, it can infer that a packet was lost, and infer congestion on the path.</t>
+				<t>There can be a timer per LSP, but this can become costly for implementations. It is possible to use only a single timer t1 for every LSPs: during t1, sent LSPs are recorded in a list list_1. Once the RTT is over, list_1 is kept and another list list_2 is used to store the next LSPs. LSPs are removed from the lists when acked. At the end of the second t1 period, every LSP in list_1 should have been acked, so list_1 is checked to be empty. list_1 can then be reused for the next RTT.</t>
+				<t>There are multiple strategies to set the timeout value t1. It should be based on measures of the maximum acknowledgement time (MAT) of each PSNPs. The simplest one is to use a exponential moving average of the MATs, like <xref target="RFC6298">RFC 6298</xref>. A more elaborate one is to take a running maximum of the MATs over a period of time of a few seconds. This value should include a margin of error to avoid false positives (e.g. estimated MAT measure variance) which would have a significant impact on performance.</t>
+
+				<t> Reordering: a sender can record its sending order and check that acknowledgements arrive on the same order than LSPs. This makes an additional assumption and should ideally be backed up by a confirmation by the receiver that this assumption stands. The O flag defined in <xref target="Flags"/> serves this purpose. </t>
 
 			</section>
-			<section anchor="CongestionControl" title="Congestion control">
-				<t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link which is typically over-sized compared to the capability of the IS-IS speakers.</t>
-				<t>This section describes one congestion control algorithm largely inspired by the TCP congestion control algorithm <xref target="RFC5681">RFC 5681</xref>. A congestion control algorithm is comprised of three elements: a slow start phase, a congestion avoidance phase, and a transition between the two.</t>
-				<t>The proposed algorithm uses a variable congestion window 'cwin'. It plays a role similar to the receive window described before. The main difference is that cwin is dynamically changed according to the feedback obtained by the PSNPs.</t>
+			<section anchor="CC1Refinement1" title="Refinement 1">
+				<t>With the algorithm presented above, if congestion is detected, cwin goes back to its initial value, and does not use the information gathered in previous congestion avoidance phases.</t>
 
-				<section anchor="SlowStart" title="Slow start">
-					<t>The goal of the slow start phase is to grow fast and try to estimate the effective link capacity.</t>
-					<t>The algorithm is circuit scoped. At the beginning of the slow start phase, the sender starts with:
-						<list style="symbols">
-							<t>a congestion window (cwin) set to one: cwin := 1;</t>
-							<t>a number of acked LSPs: acked_lsps := 0;</t>
-							<t>a max seen bandwidth: max_bw := 0;</t>
-							<t>a current rtt estimate: cur_rtt := NA;</t>
-							<t>[a receive window: rwin := ???;</t>
-							<t>an estimated bandwidth: bw_est := ???; -- Tony L.]</t>
-						</list>
-						<vspace blankLines="0"/>
-					</t>
+				<t>It is possible to use a fast recovery phase once congestion is detected, to avoid going through this linear rate of growth from scratch. When congestion is detected, a fast recovery threshold frthresh is set to frthresh := cwin / 2 In this fast recovery phase, for every acked LSP, cwin += 1. Once cwin reaches frthresh, the algorithm goes back to the congestion avoidance phase.</t>
 
-					<t>Upon LSP transmission, a sender records the current time in time_sent and acked_lsps in acked_lsps_sent for each LSP.</t>
-					<t>Upon receiving a PSNP containing acknowledgements for nb_of_lsp_entries LSPs, a sender does the following:</t>
-					<figure anchor="slow_start_algorithm">
-						<artwork>
-cwin := min(cwin + nb_of_lsp_entries, rwin)
-acked_lsps += nb_of_lsp_entries
-max_diff := 0
-max_bw := 0
-for every LSP entry:
-    time_to_ack := time_now - time_sent
-    nb_acked := acked_lsps - acked_lsps_sent
-    bw_est := nb_acked/time_to_ack
-    max_bw := max(max_bw, bw_est)
-    max_diff := max(max_diff, time_to_ack)
+				<figure anchor="cc1_algo_refinement_1">
+					<artwork>
+   +---------------+
+   |               |
+   |               v
+   |   +----------------------+
+   |   | Congestion avoidance |
+   |   + ---------------------+
+   |               |
+   |               | Congestion signal
+   |               |
+   |   +----------------------+
+   |   |     Fast recovery    |
+   |   +----------------------+
+   |               |
+   |               | frthresh reached
+   ----------------+
+					</artwork>
+				</figure>
 
-if cur_rtt == NA then cur_rtt = max_diff
-else cur_rtt := 7/8 * cur_rtt + 1/8 * max_diff
-						</artwork>
-					</figure>
-					<t>Starting with the first PSNP, max_bw is checked every cur_rtt. Once it has stalled for 3 consecutive times, the congestion control algorithm transitions from slow start to congestion avoidance. There is bandwidth stalling when the bandwidth has not increased by at least 25% compared the last RTT. Note that this is similar to Google's BBR <xref target="I-D.cardwell-iccrg-bbr-congestion-control"/>
- slow start phase.</t>
-				</section>
-				<section anchor="CongestionAvoidance" title="Congestion avoidance">
-					<t>The goal of the congestion avoidance phase is to try to stay close to the effective capacity of the link. For this, the algorithm estimates the maximum time taken by the receiver to acknowledge a LSP. If an LSP arrives slower than this delay, congestion is inferred and cwin is decreased.</t>
-					<t>Upon PSNP reception, a sender does the following:</t>
-					<figure anchor="congestion_avoidance_algorithm">
-						<artwork>
-cwin = min(cwin + N/congestion window, rwin)
-rtt_est := 0
-rtt_var := NA  -- Tony L.
-for every LSP entry:
-    time_to_ack = time_now - time_sent
-    rtt_est = max(rtt_est, time_to_ack)
+			</section>
+			<section anchor="CC1Refinement2" title="Refinement 2">
+				<t>The rates of increase were inspired from TCP <xref target="RFC5681">RFC 5681</xref>, but it is possible that a different rate of increase for cwin in the congestion avoidance phase actually yields better results due to the low RTT values in most IS-IS deployments.</t>
+			</section>
+			<section anchor="cc_remarks" title="Remarks">
+				<t>This algorithm's performance is dependent on the LPP value. Indeed, the smaller LPP is, the more information is available for the congestion control algorithm to perform well. However, it also increases the resources spent on sending PSNPs, so a tradeoff must be made. This document recommends to use an LPP of 15 or less.</t>
 
-if rtt_var == NA then rtt_var = rtt_est / 2
-else rtt_var = 3/4 * rtt_var + 1/4 * abs(cur_rtt - rtt_est)
-
-cur_rtt = 7/8 * cur_rtt + 1/8 * rtt_est
-						</artwork>
-					</figure>
-					<t>Every LSP is checked to be acked within cur_rtt + rtt_var. If an LSP arrives late, cwin is divided by two. This behaviour is similar to the TCP retransmission timer defined in <xref target="RFC6298">RFC 6298</xref>. [What are N and congestion window? -- Tony L.]
-					</t>
-					<t>There is no need for a timer per LSP. A timer per RTT is enough. During an RTT, sent LSPs are recorded in a list list_1. Once the RTT is over, list_1 is kept and another list list_2 is used to store the next LSPs. LSPs are removed from the lists when acked. At the end of the second RTT, every LSP in list_1 should have been acked, so list_1 is checked to be empty. List_1 can then be reused for the next RTT. [This needs more clarification. -- Tony L.]</t>
-					<t>If there is no transmitted LSP for a fixed period of time, e.g. 2 seconds, the sender switches back to the slow start phase.</t>
-				</section>
-				<section anchor="cc_remarks" title="Remarks">
-					<t>This algorithm's performance is dependent on the LPP value. Indeed, the smaller LPP is, the more information is available for the congestion control algorithm to perform well. However, it also increases the resources spent on sending PSNPs, so a tradeoff must be made. This document recommends to use an LPP of 15 or less.</t>
-
-					<t>Note that this congestion control algorithm benefits from the extensions proposed in this document. The advertisement of a receive window from the receiver (<xref target="FlowControl"/>
-) avoids the use of an arbitrary maximum value by the sender. The faster acknowledgment of LSPs (<xref target="LSPACKRate"/>
-) allows for a faster control loop and hence a faster increase of the congestion window in the absence of congestion.
+				<t>Note that this congestion control algorithm benefits from the extensions proposed in this document. The advertisement of a receive window from the receiver (<xref target="FlowControl"/>) avoids the use of an arbitrary maximum value by the sender. The faster acknowledgment of LSPs (<xref target="LSPACKRate"/>) allows for a faster control loop and hence a faster increase of the congestion window in the absence of congestion.
 				</t>
 			</section>
 		</section>
-
 
 		<section anchor="sec_determining_values" title="Determining values to be advertised in the Flooding Parameters TLV">
 			<t>The values that a receiver advertises do not need to be perfect. If the values are too low then the transmitter will not use the full bandwidth or available CPU resources. If the values are too high then the receiver may drop some LSPs during the first RTT and this loss will reduce the usable receive window and the protocol mechanisms will allow the adjacency to recover. Flooding several orders of magnitude slower than both nodes can achieve will hurt performance, as will consistently overloading the receiver.</t>
@@ -632,102 +642,53 @@ cur_rtt = 7/8 * cur_rtt + 1/8 * rtt_est
 		</section>
 
 		<section anchor="OPS_Considerations" title="Operation considerations">
-			<t>As discussed in  <xref target="TLVoperationLAN"/>
-, the solution is more effective on point to point adjacencies. Hence a broadcast interface (e.g. Ethernet) only shared by two IS-IS neighbhors should be configured as point to point in order to have a more effective flooding.</t>
+			<t>As discussed in  <xref target="TLVoperationLAN"/>, the solution is more effective on point to point adjacencies. Hence a broadcast interface (e.g. Ethernet) only shared by two IS-IS neighbhors should be configured as point to point in order to have a more effective flooding.</t>
 		</section>
 	</section>
 	<section anchor="ControlExample2" title="Congestion Control algorithm: Example 2">
-	          <t>This section describes a congestion control algorithm based on
-        performance measured by the transmitter without dependance on
-        signaling from the receiver.</t>
 
-        <section anchor="Ex2-arch" title="Router Architecture Discussion">
-          <t>(The following description is an abstraction - implementation
-          details vary.)</t>
+		<t>When flow control is necessary, it can be implemented in a
+        straightforward manner based on knowledge of the current flooding rate
+        and the current acknowledgement rate. Such an algorithm is a local
+        matter and there is no requirement or intent to standardize an
+        algorithm. There are a number of aspects which serve as guidelines
+        which can be described.</t>
 
-          <t>Existing router architectures may utilize multiple input queues.
-          On a given line card, IS-IS PDUs from multiple interfaces may be
-          placed in a rate limited input queue. This queue may be dedicated to
-          IS-IS PDUs or may be shared with other routing related packets.</t>
+		<t>A maximum target LSP transmission rate (LSPTxMax) SHOULD be
+        configurable. This represents the fastest LSP transmission rate which
+        will be attempted. This value SHOULD be applicable to all interfaces
+        and and SHOULD be consistent network wide.</t>
 
-          <t>The input queue may then pass IS-IS PDUs to a "punt queue" which
-          is used to pass PDUs from the data plane to the control plane. The
-          punt queue typically also has controls on its size and the rate at
-          which packets will be punted.</t>
+		<t>When the current rate of LSP transmission (LSPTxRate) exceeds the
+        capabilities of the receiver, the flow control algorithm needs to
+        aggressively reduce the LSPTxRate within a few seconds. Slower
+        responsiveness is likely to result in a large number of
+        retransmissions which can introduce much larger delays in
+        convergence.</t>
 
-          <t>An input queue in the control plane may then be used to assemble
-          PDUs from multiple linecards, separate the IS-ISs PDU from other
-          types of packets, and place the IS-IS PDUs in an input queue
-          dedicated to the IS-IS protocol.</t>
+		<t>NOTE: Even with modest increases in flooding speed (for example, a
+        target LSPTxMax of 300 LSPs/second (10 times the typical rate
+        supported today)), a topology change triggering 2100 new LSPs would
+        only take 7 seconds to complete.</t>
 
-          <t>The IS-IS input queue then separates the IS-IS PDUs and directs
-          them to an instance specific processing queue. The instance
-          specififc processing queue may then further separate the IS-IS PDUs
-          by type (IIHs, SNPs, and LSPs) so that separate processing threads
-          with varying priorities may be employed to process the incoming
-          PDUs.</t>
+		<t>Dynamic adjustment of the rate of LSP transmission (LSPTxRate)
+        upwards (i.e., faster) SHOULD be done less aggressively and only be
+        done when the neighbor has demonstrated its ability to sustain the
+        current LSPTxRate.</t>
 
-          <t>In such an architecture, it may be difficult for IS-IS in the
-          control plane to accurately track the state of the various input
-          queues and determine what value should be advertised as a current
-          receive window.</t>
+		<t>The flow control algorithm MUST NOT assume the receive capabilities
+        of a neighbor are static, i.e., it MUST handle transient conditions
+        which result in a slower or faster receive rate on the part of a
+        neighbor.</t>
 
-          <t>The following section describes a congestion control algorithm
-          based on performance measured by the transmitter without dependance
-          on signaling from the receiver.</t>
-        </section>
+		<t>The flow control algorithm needs to consider the expected delay
+        time in receiving an acknowledgment. See <xref target="LSPACKRate"/>
+.
+        This may vary per neighbor.</t>
 
-        <section anchor="Ex2-tx" title="Transmitter Based Flow Control">
-          <t>The congestion control algorithm described in this section does
-          not depend upon direct signaling from the receiver. Instead it
-          adapts the tranmsmission rate based on measurement of the actual
-          rate of acknowledgments received.</t>
-
-          <t>When flow control is necessary, it can be implemented in a
-          straightforward manner based on knowledge of the current flooding
-          rate and the current acknowledgement rate. Such an algorithm is a
-          local matter and there is no requirement or intent to standardize an
-          algorithm. There are a number of aspects which serve as guidelines
-          which can be described. </t>
-
-          <t>A maximum target LSP transmission rate (LSPTxMax) SHOULD be
-          configurable. This represents the fastest LSP transmission rate
-          which will be attempted. This value SHOULD be applicable to all
-          interfaces and SHOULD be consistent network wide.</t>
-
-          <t>When the current rate of LSP transmission (LSPTxRate) exceeds the
-          capabilities of the receiver, the flow control algorithm needs to
-          aggressively reduce the LSPTxRate within a few seconds. Slower
-          responsiveness is likely to result in a large number of
-          retransmissions which can introduce much larger delays in
-          convergence.</t>
-
-          <t>NOTE: Even with modest increases in flooding speed (for example,
-          a target LSPTxMax of 300 LSPs/second (10 times the typical rate
-          supported today)), a topology change triggering 2100 new LSPs would
-          only take 7 seconds to complete.</t>
-
-          <t>Dynamic adjustment of the rate of LSP transmission (LSPTxRate)
-          upwards (i.e., faster) SHOULD be done less aggressively and only be
-          done when the neighbor has demonstrated its ability to sustain the
-          current LSPTxRate.</t>
-
-          <t>The flow control algorithm MUST NOT assume the receive
-          capabilities of a neighbor are static, i.e., it MUST handle
-          transient conditions which result in a slower or faster receive rate
-          on the part of a neighbor.</t>
-
-          <t>The flow control algorithm needs to consider the expected delay
-          time in receiving an acknowledgment. It therefore incorporates the
-          neighbor partialSNPInterval(<xref target="partialSNPI"/>) to help
-          determine whether acknowlegments are keeping pace with the rate of
-          LSPs transmitted. In the absence of an advertisement of
-          partialSNPInterval a locally configured value can be used.</t>
 	</section>
-      </section>
-    </section>
-
-    <section anchor="IANA_Consideration" title="IANA Considerations">
+</section>
+<section anchor="IANA_Consideration" title="IANA Considerations">
 
 
 	<t>IANA is requested to allocate one TLV from the IS-IS TLV codepoint registry.</t>
@@ -780,6 +741,7 @@ cur_rtt = 7/8 * cur_rtt + 1/8 * rtt_est
         </figure></t>
     </section>
     <section anchor="Security" title="Security Considerations" toc="default">
+
 
 	<t>
     Security concerns for IS-IS are addressed in <xref target="ISO10589"/>
@@ -837,6 +799,7 @@ cur_rtt = 7/8 * cur_rtt + 1/8 * rtt_est
 <?rfc include="reference.RFC.2973"?>
 <?rfc include="reference.RFC.5681"?>
 <?rfc include="reference.I-D.cardwell-iccrg-bbr-congestion-control"?>
+r
 </references>
 <section anchor="authors-notes" title="Changes / Author Notes">
 <t>[RFC Editor: Please remove this section before publication]</t>
