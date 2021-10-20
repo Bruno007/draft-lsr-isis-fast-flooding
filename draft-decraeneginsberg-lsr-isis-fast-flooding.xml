@@ -232,7 +232,7 @@
           "MAY", and "OPTIONAL" in this document are to be interpreted as
           described in BCP 14 <xref target="RFC2119"/> <xref
           target="RFC8174"/> when, and only when, they appear in all capitals,
-          as shown here .</t>
+          as shown here.</t>
 	</section>
 
 	<section anchor="HISTORY" title="Historical Behavior">
@@ -945,29 +945,7 @@
       text relevant to these issues.</t>
 
       <t>
-	Issue 1: Placement of the discussion of LPP <xref
-	target="LPP"/> may become congestion control algorithm
-	specific. This has been addressed. Do we agree that this is
-	resolved?
-      </t>
-
-      <t>
-	Issue 2: Further discussion of the relevance of the router
-	architecture to feasibility of different flow/congeston
-	control algorithms. This is no longer relevant. Can we
-	consider this resolved?
-      </t>
-
-      <t>
-	Issue 3: Discussion of LAN belongs in a separate section - not
-	bundled w the new TLV description.  This has been
-	addressed. Do we agree that it's resolved?
-      </t>
-
-      <t>
-	Issue 4: Description of new TLV should not limit values advertised
-	to receive only. This has been addressed. Do we agree that
-	it's resolved?
+	There are no open issues at this time.
       </t>
 
     </section>
