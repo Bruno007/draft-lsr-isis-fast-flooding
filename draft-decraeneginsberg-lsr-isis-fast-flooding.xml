@@ -168,13 +168,18 @@
 
 		<date year="2021"/>
 		<abstract>
-			<t>   Current Link State Protocol Data Unit (PDU) flooding rates are much slower than what modern
-   networks can support.  The use of IS-IS at larger scale requires
-   faster flooding rates to achieve desired convergence goals.  This
-   document discusses the need for faster flooding, the issues around
-   faster flooding, and some example approaches to achieve
-   faster flooding. It also defines protocol extensions to signal parameters of the LSP receiver.
-			</t>
+		  <t>
+		    Current Link State Protocol Data Unit (PDU)
+		    flooding rates are much slower than what modern
+		    networks can support.  The use of IS-IS at larger
+		    scale requires faster flooding rates to achieve
+		    desired convergence goals.  This document
+		    discusses the need for faster flooding, the issues
+		    around faster flooding, and some example
+		    approaches to achieve faster flooding. It also
+		    defines protocol extensions relevant to faster
+		    flooding.
+		  </t>
 		</abstract>
 	</front>
 	<middle>
@@ -243,8 +248,7 @@
 				<artwork><![CDATA[minimumLSPGenerationInterval - This is the minimum time interval
      between generation of Link State PDUs. A source Intermediate 
      system shall wait at least this long before re-generating one
-     of its own Link State PDUs.
-]]>				</artwork>
+     of its own Link State PDUs.]]></artwork>
 			</figure>
 		</t>
 		<t>
@@ -254,8 +258,7 @@
 			<figure>
 				<artwork><![CDATA[minimumLSPTransmissionInterval - This is the amount of time an 
      Intermediate system shall wait before further propagating 
-     another Link State PDU from the same source system. 
-]]>				</artwork>
+     another Link State PDU from the same source system.]]></artwork>
 			</figure>
 		</t>
 		<t>
@@ -265,8 +268,7 @@
 			<figure>
 				<artwork><![CDATA[partialSNPInterval - This is the amount of time between periodic 
      action for transmission of Partial Sequence Number PDUs.
-     It shall be less than minimumLSPTransmission-Interval.
-]]>				</artwork>
+     It shall be less than minimumLSPTransmission-Interval.]]></artwork>
 			</figure>
 		</t>
 		<t>
@@ -283,8 +285,7 @@
 			<figure>
 				<artwork><![CDATA[  minimumBroadcastLSPTransmissionInterval - the minimum interval
      between PDU arrivals which can be processed by the slowest 
-     Intermediate System on the LAN.
-]]>				</artwork>
+     Intermediate System on the LAN.]]></artwork>
 			</figure>
 		</t>
 
@@ -304,8 +305,7 @@
 			<figure>
 				<artwork><![CDATA[  On point-to-point links the peak rate of arrival is limited only 
   by the speed of the data link and the other traffic flowing on 
-  that link. 
-]]>				</artwork>
+  that link.]]></artwork>
 			</figure>
 		</t>
 
@@ -347,17 +347,16 @@
 		<t>
 			For a given IS-IS adjacency, the Flooding
 			Parameters TLV does not need to be advertised
-			in each IIH or PSNP. The LSP transmitter uses
-			the latest received value for each parameter
-			until a new value is advertised by the LSP
-			receiver. However, IIHs and PSNPs are not
-			reliably exchanged, and may never be received,
-			so parameters SHOULD be sent even if there is no
-			change in value since the last
-			transmission. For a parameter which has never
-			been advertised, the LSP transmitter SHOULD
-			use its local default value. That value SHOULD
-			be configurable on a per node basis and MAY be
+			in each IIH or PSNP.  An IS uses the latest
+			received value for each parameter until a new
+			value is advertised by the peer.  However, as
+			IIHs and PSNPs are not reliably exchanged, and
+			may never be received, parameters SHOULD be
+			sent even if there is no change in value since
+			the last transmission.  For a parameter which
+			has never been advertised, an IS SHOULD use
+			its local default value.  That value SHOULD be
+			configurable on a per node basis and MAY be
 			configurable on a per interface basis.
 		</t>
 		<section anchor="LSPReceptionWindow" title="LSP Burst Window sub-TLV">
@@ -392,11 +391,19 @@
           0 1 2 3 4 5 6 7 ...
          +-+-+-+-+-+-+-+-+...
          |O|              ...
-         +-+-+-+-+-+-+-+-+...
-					</artwork>
+         +-+-+-+-+-+-+-+-+...</artwork>
 				</figure>
 			</t>
-			<t>When the O flag is set, the LSP will be acknowledged in the order they are received: a PSNP acknowledging N LSPs is acknowledging the N oldest LSPs received. The order inside the PSNP is meaningless. If the sender keeps track of the order to LSP sent, this indication allows a fast detection of loss of LSP. This MUST NOT be used to trigger faster retransmission of LSP. This MAY be used to trigger a congestion signal.</t>
+			<t>When the O flag is set, the LSP will be
+			acknowledged in the order they are received: a
+			PSNP acknowledging N LSPs is acknowledging the
+			N oldest LSPs received. The order inside the
+			PSNP is meaningless. If the sender keeps track
+			of the order of LSPs sent, this indication
+			allows a fast detection of the loss of an
+			LSP. This MUST NOT be used to trigger faster
+			retransmission of LSP. This MAY be used to
+			trigger a congestion signal.</t>
 		</section>
 
 
@@ -424,10 +431,6 @@
 			<t>On a LAN interface, all LSPs are link-level multicasts. Each LSP sent will be received by all ISs on the LAN and each IS will receive LSPs from all transmitters. In this section, we clarify how the flooding parameters should be interpreted in the context of a LAN.</t>
 			<t>An LSP receiver on a LAN will communicate its desired flooding parameters using a single Flooding Parameters TLV, copies of which will be received by all transmitters. The flooding parameters sent by the LSP receiver MUST be understood as instructions from the receiver to each transmitter about the desired maximum transmit characteristics of each transmitter. The receiver is aware that there are multiple transmitters that can send LSPs to the receiver LAN interface. The receiver might want to take that into account by advertising more conservative values, e.g. a higher LSP Transmission Interval. When the transmitters receive the LSP Transmission Interval value advertised by a LSP receiver, the transmitters should rate limit LSPs according to the advertised flooding parameters. They should not apply any further interpretation to the flooding parameters advertised by the receiver.</t>
 			<t>A given LSP transmitter will receive multiple flooding parameter advertisements from different receivers that may carry different flooding parameter values. A given transmitter SHOULD use the most convervative value on a per parameter basis. For example, if the transmitter receives multiple LSP Burst Window values, it should use the smallest value.</t>
-			<t>In order for the LSP Burst Window to be a useful parameter, an LSP transmitter needs to be able to keep track of the number of un-acknowledged LSPs it has sent to a given LSP receiver. On a LAN there is no explicit acknowledgment of the receipt of LSPs between a given LSP transmitter and a given LSP receiver. However, an LSP transmitter on a LAN can infer whether any LSP receiver on the LAN has requested retransmission of LSPs from the DIS by monitoring PSNPs generated on the LAN. If no PSNPs have been generated on the LAN for a suitable period of time, then an LSP transmitter can safely set the number of un-acknowledged LSPs to zero. Since this suitable period of time is much higher than the fast acknowledgment of LSPs defined in <xref target="LSPACKRate"/>
-,
-		the sustainable transmission rate of LSPs will be much slower on a LAN interface than on a point to point interface. The LSP Burst Window is still very useful for the first burst of LSPs sent, especially in the case of a single node failure that requires the flooding of a relatively small number of LSPs.
-			</t>
 		</section>
 
 	</section>
@@ -452,7 +455,35 @@
 			</t>
 
 			<t>The receiver SHOULD reduce its partialSNPInterval. The choice of this lower value is a local choice. It may depend on the available processing power of the node, the number of adjacencies, and the requirement to synchronize the LSDB more quickly. 200 ms seems to be a reasonable value.</t>
-			<t>In addition to the timer based partialSNPInterval, the receiver SHOULD keep track of the number of unacknowledged LSPs per circuit and level. When this number exceeds a preset threshold of LSPs Per PSNP (LPP), the receiver SHOULD immediately send a PSNP without waiting for the PSNP timer to expire. In case of a burst of LSPs, this allows for more frequent PSNPs, giving faster feedback to the sender. Outside of the burst case, the usual time-based PSNP approach comes into effect. If an LSP Burst Window is advertised, LPP SHOULD be lower and the best performance is achieved when LPP is an integer fraction of the LSP Burst Window. This number SHOULD also be lower or equal to 90 as this is the maximum number of LSPs that can be acknowledged in a PSNP, hence waiting longer would not reduce the number of PSNPs sent but would delay the acknowledgements. Based on experimental evidence, 15 unacknowledged LSPs is a good value assuming that the LSP Burst Window is at least 30.</t>
+			<t>
+			  In addition to the timer based
+			  partialSNPInterval, the receiver SHOULD keep
+			  track of the number of unacknowledged LSPs
+			  per circuit and level. When this number
+			  exceeds a preset threshold of LSPs Per PSNP
+			  (LPP), the receiver SHOULD immediately send
+			  a PSNP without waiting for the PSNP timer to
+			  expire. In case of a burst of LSPs, this
+			  allows for more frequent PSNPs, giving
+			  faster feedback to the sender. Outside of
+			  the burst case, the usual time-based PSNP
+			  approach comes into effect. The LPP SHOULD
+			  also be less than or equal to 90 as this is
+			  the maximum number of LSPs that can be
+			  acknowledged in a PSNP at common MTU sizes,
+			  hence waiting longer would not reduce the
+			  number of PSNPs sent but would delay the
+			  acknowledgements. Based on experimental
+			  evidence, 15 unacknowledged LSPs is a good
+			  value assuming that the LSP Burst Window is
+			  at least 30 and reasonably fast CPUs for
+			  both the transmitter and receiver. More
+			  frequent PSNPs gives the transmitter more
+			  feedback on receiver progress, allowing the
+			  transmitter to continue transmitting while
+			  not burdening the receiver with undue
+			  overhead.
+			</t>
 			<t>By deploying both the time-based and the threshold-based PSNP approaches, the receiver can be adaptive to both LSP bursts and infrequent LSP updates.  </t>
 
 			<t>As PSNPs also consume link bandwidth, packet queue space, and
@@ -556,7 +587,46 @@
 
 
 				</section>
-
+				<section title="Operation on a
+						broadcast LAN
+						interface">
+				  <t>
+				    In order for the LSP Burst Window
+				    to be a useful parameter, an LSP
+				    transmitter needs to be able to
+				    keep track of the number of
+				    un-acknowledged LSPs it has sent
+				    to a given LSP receiver. On a LAN
+				    there is no explicit
+				    acknowledgment of the receipt of
+				    LSPs between a given LSP
+				    transmitter and a given LSP
+				    receiver. However, an LSP
+				    transmitter on a LAN can infer
+				    whether any LSP receiver on the
+				    LAN has requested retransmission
+				    of LSPs from the DIS by monitoring
+				    PSNPs generated on the LAN. If no
+				    PSNPs have been generated on the
+				    LAN for a suitable period of time,
+				    then an LSP transmitter can safely
+				    set the number of un-acknowledged
+				    LSPs to zero. Since this suitable
+				    period of time is much higher than
+				    the fast acknowledgment of LSPs
+				    defined in <xref
+				    target="LSPACKRate"/>, the
+				    sustainable transmission rate of
+				    LSPs will be much slower on a LAN
+				    interface than on a point to point
+				    interface. The LSP Burst Window is
+				    still very useful for the first
+				    burst of LSPs sent, especially in
+				    the case of a single node failure
+				    that requires the flooding of a
+				    relatively small number of LSPs.
+				  </t>
+				</section>
 
 
 		</section>
@@ -628,7 +698,20 @@
 				<t>The rates of increase were inspired from TCP <xref target="RFC5681">RFC 5681</xref>, but it is possible that a different rate of increase for cwin in the congestion avoidance phase actually yields better results due to the low RTT values in most IS-IS deployments.</t>
 			</section>
 			<section anchor="cc_remarks" title="Remarks">
-				<t>This algorithm's performance is dependent on the LPP value. Indeed, the smaller LPP is, the more information is available for the congestion control algorithm to perform well. However, it also increases the resources spent on sending PSNPs, so a tradeoff must be made. This document recommends to use an LPP of 15 or less.</t>
+			  <t>
+			    This algorithm's performance is dependent
+			    on the LPP value. Indeed, the smaller LPP
+			    is, the more information is available for
+			    the congestion control algorithm to
+			    perform well. However, it also increases
+			    the resources spent on sending PSNPs, so a
+			    tradeoff must be made. This document
+			    recommends to use an LPP of 15 or less. If
+			    an LSP Burst Window is advertised, LPP
+			    SHOULD be lower and the best performance
+			    is achieved when LPP is an integer
+			    fraction of the LSP Burst Window.
+			  </t>
 
 				<t>Note that this congestion control algorithm benefits from the extensions proposed in this document. The advertisement of a receive window from the receiver (<xref target="FlowControl"/>) avoids the use of an arbitrary maximum value by the sender. The faster acknowledgment of LSPs (<xref target="LSPACKRate"/>) allows for a faster control loop and hence a faster increase of the congestion window in the absence of congestion.
 				</t>
@@ -861,18 +944,31 @@
       consensus. Future revisions of this document may include new/altered
       text relevant to these issues.</t>
 
-      <t>Issue 1: Placement of the discussion of LPP <xref target="LPP"/>may
-      become congestion control algorithm specific.</t>
+      <t>
+	Issue 1: Placement of the discussion of LPP <xref
+	target="LPP"/> may become congestion control algorithm
+	specific. This has been addressed. Do we agree that this is
+	resolved?
+      </t>
 
-      <t>Issue 2: Further discussion of the relevance of the router
-      architecture to feasibility of different flow/congeston control
-      algorithms.</t>
+      <t>
+	Issue 2: Further discussion of the relevance of the router
+	architecture to feasibility of different flow/congeston
+	control algorithms. This is no longer relevant. Can we
+	consider this resolved?
+      </t>
 
-      <t>Issue 3: Discussion of LAN belongs in a separate section - not
-      bundled w the new TLV description.</t>
+      <t>
+	Issue 3: Discussion of LAN belongs in a separate section - not
+	bundled w the new TLV description.  This has been
+	addressed. Do we agree that it's resolved?
+      </t>
 
-      <t>Issue 4: Description of new TLV should not limit values advertised
-      to receive only.</t>
+      <t>
+	Issue 4: Description of new TLV should not limit values advertised
+	to receive only. This has been addressed. Do we agree that
+	it's resolved?
+      </t>
 
     </section>
 </back>
