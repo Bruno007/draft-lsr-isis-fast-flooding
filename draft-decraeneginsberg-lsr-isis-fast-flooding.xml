@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="std" docName="draft-decraeneginsberg-lsr-isis-fast-flooding-00" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-00" ipr="trust200902">
 	<front>
 		<title abbrev="IS-IS Fast Flooding">IS-IS Fast Flooding</title>
 		<author fullname="Bruno Decraene" initials="B." surname="Decraene">
@@ -933,7 +933,8 @@
 </references>
 <section anchor="authors-notes" title="Changes / Author Notes">
 <t>[RFC Editor: Please remove this section before publication]</t>
-<t>00: Initial version.</t>
+<t>IND 00: Initial version.</t>
+<t>WG 00: No change.</t>
 
 </section>
     <section anchor="open-issues" title="Issues for Further Discussion">
