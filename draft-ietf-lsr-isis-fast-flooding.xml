@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-02" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-03" ipr="trust200902">
 	<front>
 		<title abbrev="IS-IS Fast Flooding">IS-IS Fast Flooding</title>
 		<author fullname="Bruno Decraene" initials="B." surname="Decraene">
@@ -430,6 +430,8 @@
 			<t>On a LAN interface, all LSPs are link-level multicasts. Each LSP sent will be received by all ISs on the LAN and each IS will receive LSPs from all transmitters. In this section, we clarify how the flooding parameters should be interpreted in the context of a LAN.</t>
 			<t>An LSP receiver on a LAN will communicate its desired flooding parameters using a single Flooding Parameters TLV, copies of which will be received by all transmitters. The flooding parameters sent by the LSP receiver MUST be understood as instructions from the receiver to each transmitter about the desired maximum transmit characteristics of each transmitter. The receiver is aware that there are multiple transmitters that can send LSPs to the receiver LAN interface. The receiver might want to take that into account by advertising more conservative values, e.g. a higher LSP Transmission Interval. When the transmitters receive the LSP Transmission Interval value advertised by a LSP receiver, the transmitters should rate limit LSPs according to the advertised flooding parameters. They should not apply any further interpretation to the flooding parameters advertised by the receiver.</t>
 			<t>A given LSP transmitter will receive multiple flooding parameter advertisements from different receivers that may carry different flooding parameter values. A given transmitter SHOULD use the most convervative value on a per parameter basis. For example, if the transmitter receives multiple LSP Burst Window values, it should use the smallest value.</t>
+			<t>The Designated Intermediate System (DIS) plays a special role in the operation of flooding on the LAN as it is responsible for responding to PSNPs sent on the LAN circuit which are used to request LSPs that the sender of the PSNP does not have. If the DIS does not support faster flooding this will impact the maximum flooding speed which could occur on a LAN. Use of LAN priority to prefer a node which supports faster flooding in the DIS election may be useful.</t>
+			<t>NOTE: The focus of work used to develop the example algorithms discussed later in this document focused on operation over point to point interfaces. A full discussion of how best to do faster flooding on a LAN interface is therefore out of scope for this document.</t> 
 		</section>
 
 	</section>
@@ -775,8 +777,8 @@
           adapts the tranmsmission rate based on measurement of the actual
           rate of acknowledgments received.</t>
 
-          <t>When flow control is necessary, it can be implemented in a
-          straightforward manner based on knowledge of the current flooding
+          <t>When flow control is necessary, it can be implemented
+          based on knowledge of the current flooding
           rate and the current acknowledgement rate. Such an algorithm is a
           local matter and there is no requirement or intent to standardize an
           algorithm. There are a number of aspects which serve as guidelines
@@ -789,15 +791,10 @@
 
           <t>When the current rate of LSP transmission (LSPTxRate) exceeds the
           capabilities of the receiver, the flow control algorithm needs to
-          aggressively reduce the LSPTxRate within a few seconds. Slower
-          responsiveness is likely to result in a large number of
+          quickly and aggressively reduce the LSPTxRate. Slower
+          responsiveness is likely to result in a larger number of
           retransmissions which can introduce much larger delays in
           convergence.</t>
-
-          <t>NOTE: Even with modest increases in flooding speed (for example,
-          a target LSPTxMax of 300 LSPs/second (10 times the typical rate
-          supported today)), a topology change triggering 2100 new LSPs would
-          only take 7 seconds to complete.</t>
 
           <t>Dynamic adjustment of the rate of LSP transmission (LSPTxRate)
           upwards (i.e., faster) SHOULD be done less aggressively and only be
@@ -805,11 +802,11 @@
           current LSPTxRate.</t>
 
           <t>The flow control algorithm MUST NOT assume the receive
-          capabilities of a neighbor are static, i.e., it MUST handle
+          performance of a neighbor are static, i.e., it MUST handle
           transient conditions which result in a slower or faster receive rate
           on the part of a neighbor.</t>
 
-          <t>The flow control algorithm needs to consider the expected delay
+          <t>The flow control algorithm SHOULD consider the expected delay
           time in receiving an acknowledgment. It therefore incorporates the
           neighbor partialSNPInterval(<xref target="partialSNPI"/>) to help
           determine whether acknowlegments are keeping pace with the rate of
