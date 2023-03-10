@@ -537,7 +537,7 @@
 
 		<section anchor="Overview" title="Overview">
 			<t>Ensuring the goodput between two entities is a layer 4 responsibility as per the OSI model and a typical example is the TCP protocol defined in
-				<xref target="RFC9293">RFC 9293</xref> and relies on the flow control, congestion control, and reliability mechanisms of the protocol.
+				<xref target="RFC9293"></xref> and relies on the flow control, congestion control, and reliability mechanisms of the protocol.
 			</t>
 			<t>Flow control creates a control loop between a transmiter and a receiver so that the transmitter does not overwhelm the receiver. TCP provides a mean for the receiver to govern the amount of data sent by the sender through the use of a sliding window.</t>
 			<t>Congestion control creates multiple interacting control loops between multiple transmitters and multiple receivers to prevent the transmitters  from overwhelming the overall network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and consist of a link that is typically over-sized compared to the capability of the IS-IS speakers, but may also includes components inside both routers such as a switching fabric, line card CPU, and forwarding plane buffers that may experience congestion. These resources may be shared across multiple IS-IS adjacencies for the system and it is the responsibility of congestion control to ensure that these are shared reasonably.</t>
@@ -633,7 +633,7 @@
 		</section>
 		<section anchor="CongestionControl" title="Congestion Control">
 		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link which is typically over-sized compared to the capability of the IS-IS speakers.</t>
-			<t>This section describes one sender-side congestion control algorithm largely inspired by the TCP congestion control algorithm <xref target="RFC5681">RFC 5681</xref>.</t>
+			<t>This section describes one sender-side congestion control algorithm largely inspired by the TCP congestion control algorithm <xref target="RFC5681"></xref>.</t>
 			<t>The proposed algorithm uses a variable congestion window 'cwin'. It plays a role similar to the receive window described above. The main difference is that cwin is dynamically changed according to various events described below.</t>
 
 			<section anchor="CC1Core" title="Core algorithm">
@@ -664,7 +664,7 @@
 
 				<t>Timers: when receiving acknowledgements, a sender estimates the acknowledgement time of the receiver. Based on this estimation, it can infer that a packet was lost, and infer congestion on the path.</t>
 				<t>There can be a timer per LSP, but this can become costly for implementations. It is possible to use only a single timer t1 for every LSPs: during t1, sent LSPs are recorded in a list list_1. Once the RTT is over, list_1 is kept and another list list_2 is used to store the next LSPs. LSPs are removed from the lists when acked. At the end of the second t1 period, every LSP in list_1 should have been acked, so list_1 is checked to be empty. list_1 can then be reused for the next RTT.</t>
-				<t>There are multiple strategies to set the timeout value t1. It should be based on measures of the maximum acknowledgement time (MAT) of each PSNPs. The simplest one is to use a exponential moving average of the MATs, like <xref target="RFC6298">RFC 6298</xref>. A more elaborate one is to take a running maximum of the MATs over a period of time of a few seconds. This value should include a margin of error to avoid false positives (e.g. estimated MAT measure variance) which would have a significant impact on performance.</t>
+				<t>There are multiple strategies to set the timeout value t1. It should be based on measures of the maximum acknowledgement time (MAT) of each PSNPs. The simplest one is to use a exponential moving average of the MATs, like <xref target="RFC6298"/>. A more elaborate one is to take a running maximum of the MATs over a period of time of a few seconds. This value should include a margin of error to avoid false positives (e.g. estimated MAT measure variance) which would have a significant impact on performance.</t>
 
 				<t> Reordering: a sender can record its sending order and check that acknowledgements arrive on the same order than LSPs. This makes an additional assumption and should ideally be backed up by a confirmation by the receiver that this assumption stands. The O flag defined in <xref target="Flags"/> serves this purpose. </t>
 
@@ -697,7 +697,7 @@
 
 			</section>
 			<section anchor="CC1Refinement2" title="Refinement 2">
-				<t>The rates of increase were inspired from TCP <xref target="RFC5681">RFC 5681</xref>, but it is possible that a different rate of increase for cwin in the congestion avoidance phase actually yields better results due to the low RTT values in most IS-IS deployments.</t>
+				<t>The rates of increase were inspired from TCP <xref target="RFC5681"/>, but it is possible that a different rate of increase for cwin in the congestion avoidance phase actually yields better results due to the low RTT values in most IS-IS deployments.</t>
 			</section>
 			<section anchor="cc_remarks" title="Remarks">
 			  <t>
@@ -723,13 +723,9 @@
 		<section anchor="Pacing" title="Pacing">
 			<t>As discussed in <xref target="RFC9002" sectionFormat="comma" section="7.7" /> a sender SHOULD pace sending of all in-flight LSP based on input from the congestion controller.</t>
 			<t>Sending multiple packets without any delay between them creates a packet burst that might cause short-term congestion and losses. Senders MUST either use pacing or limit such bursts. Senders SHOULD limit bursts to the initial congestion window. A sender with knowledge that the receiver can absorb larger bursts, such as by receiving the LSP Burst Window sub-TLV from this receiver MAY use a higher limit.</t>
-			<t>Senders can implement pacing as they choose. A perfectly paced sender spreads packets exactly evenly over time. For a window-based congestion controller, such as the one in this section, that rate can be computed by averaging the congestion window over the RTT. Expressed as an inter-packet interval in units of time:</t> 
-			<figure anchor="Pacing_formula">
-					<artwork>
-   interval = ( smoothed_rtt / congestion_window ) / N
-					</artwork>
-				</figure>
-			<t>Using a value for N that is small, but at least 1 (for example, 1.25) ensures that variations in RTT do not result in underutilization of the congestion window.</t>
+			<t>Senders can implement pacing as they choose. A perfectly paced sender spreads packets exactly evenly over time. For a window-based congestion controller, such as the one in this section, that rate can be computed by averaging the congestion window over the RTT. Expressed as an inter-packet interval in units of time:</t>
+			<t>interval = ( smoothed_rtt / congestion_window ) / N</t> 
+						<t>Using a value for N that is small, but at least 1 (for example, 1.25) ensures that variations in RTT do not result in underutilization of the congestion window.</t>
 			<t>Practical considerations, such as scheduling delays and computational efficiency, can cause a sender to deviate from this rate over time periods that are much shorter than an RTT.</t>
 			<t>One possible implementation strategy for pacing uses a leaky bucket algorithm, where the capacity of the "bucket" is limited to the maximum burst size and the rate the "bucket" fills is determined by the above function.</t>
 		</section>
@@ -919,9 +915,10 @@
 </section>
 
 <section anchor="Contributors" title="Contributors">
-<t>The following people gave a substantial contribution to the content of this document and should be considered as coauthors:</t>
-<t>Acee Lindem, Cisco Systems, acee@cisco.com</t>
-<t>Jayesh J, Juniper Networks, jayeshj@juniper.net</t>
+<t>The following people gave a substantial contribution to the content of this document and should be considered as coauthors:<list style="symbols">
+	<t>Acee Lindem, Cisco Systems, acee@cisco.com</t>
+	<t>Jayesh J, Juniper Networks, jayeshj@juniper.net</t>
+</list></t>
 </section>
 
 <section anchor="Acknowledgments" title="Acknowledgments">
@@ -960,6 +957,12 @@
 <t>WG 00: No change.</t>
 <t>WG 01: IANA allocated code point.</t>
 <t>WG 02: No change.</t>
+<t>WG 03: <list style="symbols">
+	<t>Pacing section added (taken from RFC 9002).</t>
+	<t>Some text borrowed from RFC 9002 (QUIC Loss Detection and Congestion Control).</t>
+	<t>Considerations on the special role of the DIS.</t>
+	<t>Editorial changes.</t>
+</list></t>
 
 </section>
     <section anchor="open-issues" title="Issues for Further Discussion">
