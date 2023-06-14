@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-03" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-04" ipr="trust200902">
 	<front>
 		<title abbrev="IS-IS Fast Flooding">IS-IS Fast Flooding</title>
 		<author fullname="Bruno Decraene" initials="B." surname="Decraene">
@@ -387,7 +387,7 @@
          +-+-+-+-+-+-+-+-+...</artwork>
 				</figure>
 			</t>
-			<t>When the O flag is set, the LSP will be
+			<t>When the O-flag (Ordered acknowledgement ) is set, the LSP will be
 			acknowledged in the order they are received: a
 			PSNP acknowledging N LSPs is acknowledging the
 			N oldest LSPs received. The order inside the
@@ -842,13 +842,14 @@
 
 	</section>
 
-	<section anchor="IANA_Consideration2" title="Registry: Sub-TLVs for TLV 21 (Flooding Parameters TLV)">
+	<section anchor="IANA_Consideration2" title="Registry: IS-IS Sub-TLVs for Flooding Parameters TLV">
 	<t>This document creates the following sub-TLV Registry:</t>
-	<t>Name: Sub-TLVs for TLV 21 (Flooding Parameters TLV).</t>
+	<t>Name: IS-IS Sub-TLVs for Flooding Parameters TLV.</t>
 	<t>Registration Procedure(s): Expert Review</t>
-	<t>Expert(s): TBD</t>
-	<t>Reference: TBD</t>
-	<texttable anchor="table_ex" title="Initial allocations">
+	<t>Expert(s): Chris Hopps, Hannes Gredler, Les Ginsberg</t>
+	<t>Description: This registry defines sub-TLV for the Flooding Parameters TLV(21).</t>
+	<t>Reference: This document.</t>
+	<texttable anchor="Registry_Flooding" title="Initial Sub-TLVs allocations for Flooding Parameters TLV">
 		<ttcol align='center'>Type</ttcol>
 		<ttcol align='left'>Description</ttcol>
 		<c>0</c>
@@ -870,23 +871,27 @@
 	</texttable>
 	</section>
 
-	<section anchor="IANA_Consideration3" title="Registry: Flooding Parameters Flags Bits">
+	<section anchor="IANA_Consideration3" title="Registry: IS-IS Bit Values for Flooding Parameters Flags Sub-TLV">
       <t>This document also requests IANA to create a new registry for
       assigning Flag bits advertised in the Flags sub-TLV.</t>
 
-      <t>Name: Flooding Parameters Flags Bits.</t>
+      <t>Name: IS-IS Bit Values for Flooding Parameters Flags Sub-TLV.</t>
 
-      <t>Registration Procedure:</t>
+      <t>Registration Procedure: Expert Review</t>
 
-      <t>Expert Review Expert(s): TBD</t>
+      <t>Expert Review Expert(s): Chris Hopps, Hannes Gredler, Les Ginsberg</t>
 
-      <t><figure>
-          <artwork><![CDATA[+--------+------------------------+
-| Bit #  |  Description           |
-+--------|------------------------+
-|  0     |  O Flag                |
-+--------|------------------------+]]></artwork>
-        </figure></t>
+	  <t>Description: This registry defines bit values for the Flags sub-TLV(4) advertised in the Flooding Parameters TLV(21).</t>
+	  
+	  <t>Reference: This document.</t>
+
+	<texttable anchor="Registry_Flags" title="Initial bits allocations for Flags Sub-TLV">
+		<ttcol align='center'>Bit #</ttcol>
+		<ttcol align='left'>Description</ttcol>
+		<c>0</c>
+		<c>Ordered acknowledgement (O-flag)</c>
+	</texttable>
+
     </section>
 	</section>
 
@@ -962,6 +967,9 @@
 	<t>Some text borrowed from RFC 9002 (QUIC Loss Detection and Congestion Control).</t>
 	<t>Considerations on the special role of the DIS.</t>
 	<t>Editorial changes.</t>
+</list></t>
+<t>WG 04: <list style="symbols">
+	<t>Update IANA section as per IANA editor comments (2023-03-23).</t>
 </list></t>
 
 </section>
