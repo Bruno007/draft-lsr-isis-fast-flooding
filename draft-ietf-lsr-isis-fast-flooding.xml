@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-04" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-05" ipr="trust200902">
 	<front>
 		<title abbrev="IS-IS Fast Flooding">IS-IS Fast Flooding</title>
 		<author fullname="Bruno Decraene" initials="B." surname="Decraene">
@@ -882,6 +882,7 @@
       <t>Expert Review Expert(s): TBD</t>
 
 	  <t>Description: This registry defines bit values for the Flags sub-TLV(4) advertised in the Flooding Parameters TLV(21).</t>
+	  <t>To minimize encoding space, new allocation should use the smallest available value.</t>
 	  
 	  <t>Reference: This document.</t>
 
@@ -890,6 +891,8 @@
 		<ttcol align='left'>Description</ttcol>
 		<c>0</c>
 		<c>Ordered acknowledgement (O-flag)</c>
+		<c>1-63</c>
+		<c>Unassigned</c>
 	</texttable>
 
     </section>
