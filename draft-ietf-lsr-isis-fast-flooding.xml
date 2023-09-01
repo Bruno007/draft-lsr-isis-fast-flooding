@@ -283,7 +283,7 @@
       support faster signaling of topology changes. For example,
       minimumLSPGenerationInterval has been modified to support millisecond
       intervals, often with a backoff algorithm applied to prevent LSP
-      generation storms in the event of a rapid successive oscillations.</t>
+      generation storms in the event of rapid successive oscillations.</t>
 
 		<t>However, the flooding rate has not been fundamentally altered.</t>
 	</section>
@@ -365,8 +365,8 @@
 			PSNP is meaningless. If the sender keeps track
 			of the order of LSPs sent, this indication
 			allows a fast detection of the loss of an
-			LSP. This MUST NOT be used to trigger faster
-			retransmission of a lost LSP. This MAY be used to
+			LSP. This MUST NOT be used to alter the 
+			retransmission timer for any LSP. This MAY be used to
 			trigger a congestion signal.</t>
 		</section>
 
