@@ -82,19 +82,7 @@
 			</address>
 		</author>
 
-		<author initials="C." surname="Bowers" fullname="Chris Bowers">
-			<organization>Juniper Networks, Inc.</organization>
-			<address>
-				<postal>
-					<street>1194 N. Mathilda Avenue</street>
-					<city>Sunnyvale</city>
-					<region>CA</region>
-					<code>94089</code>
-					<country>USA</country>
-				</postal>
-				<email>cbowers@juniper.net</email>
-			</address>
-		</author>
+
 
 		<author initials="G." surname="Van de Velde" fullname="Gunter Van de Velde">
 			<organization>Nokia</organization>
@@ -109,23 +97,6 @@
 			</address>
 		</author>
 
-		<author fullname="Peter Psenak" initials="P" surname="Psenak">
-			<organization>Cisco Systems</organization>
-
-			<address>
-				<postal>
-					<street>Apollo Business Center Mlynske nivy 43</street>
-
-					<city>Bratislava</city>
-
-					<code>821 09</code>
-
-					<country>Slovakia</country>
-				</postal>
-
-				<email>ppsenak@cisco.com</email>
-			</address>
-		</author>
 
 
 		<author fullname="Tony Przygienda" initials="T" surname="Przygienda">
@@ -926,6 +897,8 @@
 <t>The following people gave a substantial contribution to the content of this document and should be considered as coauthors:<list style="symbols">
 	<t>Acee Lindem, Cisco Systems, acee@cisco.com</t>
 	<t>Jayesh J, Juniper Networks, jayeshj@juniper.net</t>
+	<t>Chris Bowers, Juniper Networks, cbowers@juniper.net</t>
+	<t>Peter Psenak, Cisco Systems, ppsenak@cisco.com</t>
 </list></t>
 </section>
 
