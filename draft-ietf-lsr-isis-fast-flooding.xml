@@ -275,7 +275,7 @@
 
 		<t>Although modern implementations have not strictly adhered to the 33
       millisecond interval, it is commonplace for implementations to limit
-      the flooding rate the same order of magnitude similar as the 33 ms value.</t>
+      the flooding rate to the same order of magnitude similar as the 33 ms value.</t>
 
 		<t>In the past 20 years, significant work on achieving faster
       convergence, more specifically sub-second convergence, has resulted in
@@ -300,7 +300,7 @@
 		    Partial Sequence Number PDUs (PSNPs). It allows
 		    IS-IS implementations to advertise flooding-related
 			parameters parameters and capabilities which may be
-		    used by the peer to support of faster flooding.
+		    used by the peer to support faster flooding.
 		</t>
 		<t>Type: 21</t>
 		<t>Length: variable, the size in octets of the Value field</t>
@@ -400,7 +400,7 @@
 		<section anchor="TLVoperationLAN" title="Operation on a LAN interface">
 			<t>On a LAN interface, all LSPs are link-level multicasts. Each LSP sent will be received by all ISs on the LAN and each IS will receive LSPs from all transmitters. In this section, we clarify how the flooding parameters should be interpreted in the context of a LAN.</t>
 			<t>An LSP receiver on a LAN will communicate its desired flooding parameters using a single Flooding Parameters TLV, which will be received by all LSP transmitters. The flooding parameters sent by the LSP receiver MUST be understood as instructions from the LSP receiver to each LSP transmitter about the desired maximum transmit characteristics of each transmitter. The receiver is aware that there are multiple transmitters that can send LSPs to the receiver LAN interface. The receiver might want to take that into account by advertising more conservative values, e.g., a higher LSP Transmission Interval. When the transmitters receive the LSP Transmission Interval value advertised by an LSP receiver, the transmitters should rate-limit LSPs according to the advertised flooding parameters. They should not apply any further interpretation to the flooding parameters advertised by the receiver.</t>
-			<t>A given LSP transmitter will receive multiple flooding parameter advertisements from different receivers that may incude different flooding parameter values. A given transmitter SHOULD use the most convervative value on a per-parameter basis. For example, if the transmitter receives multiple LSP Burst Window values, it should use the smallest value.</t>
+			<t>A given LSP transmitter will receive multiple flooding parameter advertisements from different receivers that may include different flooding parameter values. A given transmitter SHOULD use the most convervative value on a per-parameter basis. For example, if the transmitter receives multiple LSP Burst Window values, it should use the smallest value.</t>
 			<t>The Designated Intermediate System (DIS) plays a special role in the operation of flooding on the LAN as it is responsible for responding to PSNPs sent on the LAN circuit which are used to request LSPs that the sender of the PSNP does not have. If the DIS does not support faster flooding, this will impact the maximum flooding speed which could occur on a LAN. Use of LAN priority to prefer a node which supports faster flooding in the DIS election may be useful.</t>
 			<t>NOTE: The focus of work used to develop the example algorithms discussed later in this document focused on operation over point-to-point interfaces. A full discussion of how best to do faster flooding on a LAN interface is therefore out of scope for this document.</t> 
 		</section>
@@ -514,7 +514,7 @@
 			<t>Congestion control creates multiple interacting control loops between multiple transmitters and multiple receivers to prevent the transmitters  from overwhelming the overall network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and consist of a link that is typically over-sized compared to the capability of the IS-IS speakers, but may also include components inside both routers such as a switching fabric, line card CPU, and forwarding plane buffers that may experience congestion. These resources may be shared across multiple IS-IS adjacencies for the system and it is the responsibility of congestion control to ensure that these are shared reasonably.</t>
 			<t>Reliability provides loss detection and recovery. IS-IS already has mechanisms to ensure the reliable transmission of LSPs. This is not changed by this document.</t>
 
-			<t>The following two sections provide two Flow and/or Congestion control algorithms that may be implemented by taking advantage of the extensions defined in this document. The signal that theses IS-IS extensions defined in  <xref target="FloodingTLV"/> and  <xref target="Receiver"/>provides are generic and are designed to support different sender-side algorithms. A sender can unilaterally choose a different algorithm to use.</t>
+			<t>The following two sections provide two Flow and/or Congestion control algorithms that may be implemented by taking advantage of the extensions defined in this document. The signal that these IS-IS extensions defined in  <xref target="FloodingTLV"/> and  <xref target="Receiver"/>provide are generic and are designed to support different sender-side algorithms. A sender can unilaterally choose a different algorithm to use.</t>
 		</section>
 
 		<section anchor="ControlExample1" title="Congestion and Flow Control algorithm 1">
@@ -622,7 +622,7 @@
    ----------------+
 					</artwork>
 				</figure>
-				<t>The algorithm starts with cwin sets to cwin = LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin. Thus, the sending rate roughly increases linearly as the RTT decrease. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
+				<t>The algorithm starts with cwin = LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin. Thus, the sending rate is inversely proportional to the RTT. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
 
 				<t>When updating cwin, it must not become higher than the number of LSPs waiting to be sent, otherwise the sending will not be paced by the receiving of acks. Said differently, tx pressure is needed to maintain and increase cwin.</t>
 
