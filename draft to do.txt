@@ -1,4 +1,0 @@
-Draft 
-- A la fin du slow start, cwin<-cwin/2 (vérifier que ce n'est pas déjà fait)
-- 1 phrase pour dire que si LPP et RTT est grand, the sender SHOULD pace the LSP (e.g., N burst of LPP/N LSPs over 1/2*RTT)
-- changer le texte du buffer annoncé en TLV (control plane buffer, e.G. socket buffer) or lower (e.g., taking into account some known additional restrictions)
