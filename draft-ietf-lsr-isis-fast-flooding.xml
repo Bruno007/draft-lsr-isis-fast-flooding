@@ -514,10 +514,10 @@
 			<t>Congestion control creates multiple interacting control loops between multiple transmitters and multiple receivers to prevent the transmitters  from overwhelming the overall network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and consist of a link that is typically over-sized compared to the capability of the IS-IS speakers, but may also include components inside both routers such as a switching fabric, line card CPU, and forwarding plane buffers that may experience congestion. These resources may be shared across multiple IS-IS adjacencies for the system and it is the responsibility of congestion control to ensure that these are shared reasonably.</t>
 			<t>Reliability provides loss detection and recovery. IS-IS already has mechanisms to ensure the reliable transmission of LSPs. This is not changed by this document.</t>
 
-			<t>The following two sections provide two Flow and/or Congestion control algorithms that may be implemented by taking advantage of the extensions defined in this document. The signal that these IS-IS extensions defined in  <xref target="FloodingTLV"/> and  <xref target="Receiver"/>provide are generic and are designed to support different sender-side algorithms. A sender can unilaterally choose a different algorithm to use.</t>
+			<t>The following two sections provide two Flow and/or Congestion control algorithms that may be implemented by taking advantage of the extensions defined in this document. The signal that these IS-IS extensions defined in  <xref target="FloodingTLV"/> and  <xref target="Receiver"/> provide are generic and are designed to support different sender-side algorithms. A sender can unilaterally choose a different algorithm to use.</t>
 		</section>
 
-		<section anchor="ControlExample1" title="Congestion and Flow Control algorithm 1">
+		<section anchor="Algo1" title="Congestion and Flow Control algorithm 1">
 
 
 			<section anchor="FlowControl" title="Flow control">
@@ -712,7 +712,7 @@
 			<t>As discussed in  <xref target="TLVoperationLAN"/>, the solution is more effective on point-to-point adjacencies. Hence a broadcast interface (e.g., Ethernet) only shared by two IS-IS neighbors should be configured as point-to-point in order to have more effective flooding.</t>
 		</section>
 	</section>
-	<section anchor="ControlExample2" title="Congestion Control algorithm 2">
+	<section anchor="Algo2" title="Congestion Control algorithm 2">
 	          <t>This section describes a congestion control algorithm based on
         performance measured by the transmitter without dependance on
         signaling from the receiver.</t>
@@ -887,7 +887,7 @@
 , an attacker wanting to advertise an incorrect
     Flooding Parameters TLV would have to first defeat these mechanisms.
 </t>
-<t>In the absence of cryptographic authentication, as IS-IS does not run over IP but directly over the link layer, it's considered difficult to inject false SNP/IHH without having access to the link layer.</t>
+<t>In the absence of cryptographic authentication, as IS-IS does not run over IP but directly over the link layer, it's considered difficult to inject false SNP/IIH without having access to the link layer.</t>
 <t>If a false SNP/IIH is sent with a Flooding Parameters TLV set to conservative values, the attacker can reduce the flooding speed between the two adjacent neighbors which can result in LSDB inconsistencies and transient forwarding loops. However, it is not significantly different than filtering or altering LSPs which would also be possible with access to the link layer. In addition, if the downstream flooding neighbor has multiple IGP neighbors, which is typically the case for reliability or topological reasons, it would receive LSPs at a regular speed from its other neighbors and hence would maintain LSDB consistency.</t>
 <t>If a false SNP/IIH is sent with a Flooding Parameters TLV set to aggressive values, the attacker can increase the flooding speed which can either overload a node or more likely generate loss of LSPs. However, it is not significantly different than sending many LSPs which would also be possible with access to the link layer, even with cryptographic authentication enabled. In addition, IS-IS has procedures to detect the loss of LSPs and recover.</t>
 <t>This TLV advertisement is not flooded across the network but only sent between adjacent IS-IS neighbors. This would limit the consequences in case of forged messages, and also limits the dissemination of such information.</t>
@@ -895,7 +895,7 @@
 
 <section anchor="Contributors" title="Contributors">
 <t>The following people gave a substantial contribution to the content of this document and should be considered as coauthors:<list style="symbols">
-	<t>Jayesh J, Juniper Networks, jayeshj@juniper.net</t>
+	<t>Jayesh J, Ciena, jayesh.ietf@gmail.com</t>
 	<t>Chris Bowers, Juniper Networks, cbowers@juniper.net</t>
 	<t>Peter Psenak, Cisco Systems, ppsenak@cisco.com</t>
 </list></t>
