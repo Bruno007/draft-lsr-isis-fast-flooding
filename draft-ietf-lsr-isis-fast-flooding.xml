@@ -842,8 +842,8 @@
 	</texttable>
 	</section>
 
-	<section anchor="IANA_Consideration" title="Registry: IS-IS Bit Values for Flooding Parameters Flags Sub-TLV">
-      <t>TThis document requests IANA to create a new registry, under the "IS-IS TLV Codepoints" grouping, for assigning Flag bits advertised in the Flags sub- TLV.</t>
+	<section anchor="IANA_Consideration3" title="Registry: IS-IS Bit Values for Flooding Parameters Flags Sub-TLV">
+      <t>This document requests IANA to create a new registry, under the "IS-IS TLV Codepoints" grouping, for assigning Flag bits advertised in the Flags sub- TLV.</t>
 
       <t>Name: IS-IS Bit Values for Flooding Parameters Flags Sub-TLV.</t>
 
