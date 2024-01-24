@@ -814,7 +814,7 @@
 	</section>
 
 	<section anchor="IANA_Consideration2" title="Registry: IS-IS Sub-TLV for Flooding Parameters TLV">
-	<t>This document creates the following sub-TLV Registry:</t>
+	<t>This document creates the following sub-TLV Registry under the "IS-IS TLV Codepoints" grouping:</t>
 	<t>Name: IS-IS Sub-TLVs for Flooding Parameters TLV.</t>
 	<t>Registration Procedure(s): Expert Review</t>
 	<t>Expert(s): TBD</t>
@@ -842,9 +842,8 @@
 	</texttable>
 	</section>
 
-	<section anchor="IANA_Consideration3" title="Registry: IS-IS Bit Values for Flooding Parameters Flags Sub-TLV">
-      <t>This document also requests IANA to create a new registry for
-      assigning Flag bits advertised in the Flags sub-TLV.</t>
+	<section anchor="IANA_Consideration" title="Registry: IS-IS Bit Values for Flooding Parameters Flags Sub-TLV">
+      <t>TThis document requests IANA to create a new registry, under the "IS-IS TLV Codepoints" grouping, for assigning Flag bits advertised in the Flags sub- TLV.</t>
 
       <t>Name: IS-IS Bit Values for Flooding Parameters Flags Sub-TLV.</t>
 
