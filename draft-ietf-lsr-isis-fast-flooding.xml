@@ -944,21 +944,10 @@
 </list></t>
 <t>WG 04: <list style="symbols">
 	<t>Update IANA section as per IANA editor comments (2023-03-23).</t>
+<t>WG 06: <list style="symbols">
+	<t>AD review.</t>
 </list></t>
 
-</section>
-    <section anchor="open-issues" title="Issues for Further Discussion">
-      <t>[RFC Editor: Please remove this section before publication]</t>
 
-      <t>This section captures issues which the authors either have not yet
-      had time to address or on which the authors have not yet reached
-      consensus. Future revisions of this document may include new/altered
-      text relevant to these issues.</t>
-
-      <t>
-	There are no open issues at this time.
-      </t>
-
-    </section>
 </back>
 </rfc>
