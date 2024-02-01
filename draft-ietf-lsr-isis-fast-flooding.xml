@@ -323,14 +323,14 @@
 			configurable on a per-node basis and MAY be
 			configurable on a per-interface basis.
 		</t>
-		<section anchor="LSPReceptionWindow" title="LSP Burst Size sub-TLV">
+		<section anchor="LSPBurstSize" title="LSP Burst Size sub-TLV">
 			<t>The LSP Burst Size sub-TLV advertises the maximum number of LSPs that the node can receive without an intervening delay between LSP transmissions.</t>
 			<t>Type: 1</t>
 			<t>Length: 4 octets</t>
 			<t>Value: number of LSPs that can be received back-to-back.</t>
 		</section>
 		<section anchor="InterfaceLSPTransmissionInterval" title="LSP Transmission Interval sub-TLV">
-			<t>The LSP Transmission Interval sub-TLV advertises the minimum interval, in micro-seconds, between LSPs arrivals which can be received on this interface, following the reception of "LSP Burst Size".</t>
+			<t>The LSP Transmission Interval sub-TLV advertises the minimum interval, in micro-seconds, between LSPs arrivals which can be sustained on this receiving interface.</t>
 			<t>Type: 2</t>
 			<t>Length: 4 octets</t>
 			<t>Value: minimum interval, in micro-seconds, between two consecutive LSPs received after LSP Burst Size LSPs have been received</t>
@@ -361,7 +361,7 @@
 			<t>When the O-flag (Ordered acknowledgement) is set, the LSPs will be
 			acknowledged in the order they are received: a
 			PSNP acknowledging N LSPs is acknowledging the
-			N oldest unacknowledged LSPs. The order inside the
+			N oldest LSPs received. The order inside the
 			PSNP is meaningless. If the sender keeps track
 			of the order of LSPs sent, this indication
 			allows a fast detection of the loss of an
@@ -552,7 +552,7 @@
 
 					<t>By advertising an LSP Transmission Interval sub-TLV, a node advertises its ability to receive LSPs separated by at least the advertised value, outside of LSP bursts.</t>
 
-					<t>The LSP transmitter MUST NOT exceed these parameters. After having sent a full burst of un-acknowledged LSPs, it MUST send the subsequent LSPs with an LSP Transmission Interval between LSP transmissions. For CPU scheduling reasons, this rate MAY be averaged over a small period, e.g., 10-30ms.</t>
+					<t>The LSP transmitter MUST NOT exceed these parameters. After having sent a full burst of un-acknowledged LSPs, it MUST send the subsequent LSPs with a minimum of LSP Transmission Interval between LSP transmissions. For CPU scheduling reasons, this rate MAY be averaged over a small period, e.g., 10-30ms.</t>
 
 					<t>If either the LSP transmitter or receiver does not adhere to these parameters, for example because of transient conditions, this doesn't result in a fatal condition for IS-IS operation. In the worst case, an LSP is lost at the receiver and this situation is already remedied by mechanisms in <xref target="ISO10589"/>.
 					After a few seconds, neighbors will exchange PSNPs (for point-to-point interfaces) or CSNPs (for broadcast interfaces) and recover from the lost LSPs. This worst case should be avoided as those additional seconds impact convergence time since the LSDB is not fully synchronized. Hence it is better to err on the conservative side and to under-run the receiver rather than over-run it.</t>
@@ -622,7 +622,7 @@
    ----------------+
 					</artwork>
 				</figure>
-				<t>The algorithm starts with cwin = LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin. Thus, the sending rate is inversely proportional to the RTT. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
+				<t>The algorithm starts with cwin = cwin0 = LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin. When LSPs are exchanged, cwin LSPs will be acknowledged in 1 RTT, meaning cwin(t) = t/RTT + cwin0. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
 
 				<t>When updating cwin, it must not become higher than the number of LSPs waiting to be sent, otherwise the sending will not be paced by the receiving of acks. Said differently, tx pressure is needed to maintain and increase cwin.</t>
 
@@ -635,7 +635,7 @@
 
 				<t>Timers: When receiving acknowledgements, a sender estimates the acknowledgement time of the receiver. Based on this estimation, it can infer that a packet was lost, and infer congestion on the path.</t>
 				<t>There can be a timer per LSP, but this can become costly for implementations. It is possible to use only a single timer t1 for all LSPs: during t1, sent LSPs are recorded in a list list_1. Once the RTT is over, list_1 is kept and another list list_2 is used to store the next LSPs. LSPs are removed from the lists when acked. At the end of the second t1 period, every LSP in list_1 should have been acked, so list_1 is checked to be empty. list_1 can then be reused for the next RTT.</t>
-				<t>There are multiple strategies to set the timeout value t1. It should be based on measures of the maximum acknowledgement time (MAT) of each PSNP. The simplest one is to use an exponential moving average of the MATs, like <xref target="RFC6298"/>. A more elaborate one is to take a running maximum of the MATs over a period of a few seconds. This value should include a margin of error to avoid false positives (e.g., estimated MAT measure variance) which would have a significant impact on performance.</t>
+				<t>There are multiple strategies to set the timeout value t1. It should be based on measurements of the maximum acknowledgement time (MAT) of each PSNP. The simplest one is to use an exponential moving average of the MATs, like <xref target="RFC6298"/>. A more elaborate one is to take a running maximum of the MATs over a period of a few seconds. This value should include a margin of error to avoid false positives (e.g., estimated MAT measure variance) which would have a significant impact on performance.</t>
 
 				<t> Reordering: a sender can record its sending order and check that acknowledgements arrive in the same order as LSPs. This makes an additional assumption and should ideally be backed up by a confirmation by the receiver that this assumption holds. The O flag defined in <xref target="Flags"/> serves this purpose. </t>
 
@@ -695,7 +695,8 @@
 			<t>As discussed in <xref target="RFC9002" sectionFormat="comma" section="7.7" /> a sender SHOULD pace sending of all in-flight LSPs based on input from the congestion controller.</t>
 			<t>Sending multiple packets without any delay between them creates a packet burst that might cause short-term congestion and losses. Senders MUST either use pacing or limit such bursts. Senders SHOULD limit bursts to the initial congestion window. A sender with knowledge that the receiver can absorb larger bursts, such as by receiving the LSP Burst Size sub-TLV from this receiver may use a higher limit.</t>
 			<t>Senders can implement pacing as they choose. A perfectly paced sender spreads packets evenly over time. For a window-based congestion controller, such as the one in this section, that rate can be computed by averaging the congestion window over the RTT. Expressed as an inter-packet interval in units of time:</t>
-			<t>interval = (smoothed_rtt / cwin) / N</t> 
+			<t>interval = (SRTT / cwin) / N</t> 
+						<t>SRTT is the smoothed round-trip time [RFC6298]</t>
 						<t>Using a value for N that is small, but at least 1 (for example, 1.25) ensures that variations in RTT do not result in underutilization of the congestion window.</t>
 			<t>Practical considerations, such as scheduling delays and computational efficiency, can cause a sender to deviate from this rate over time periods that are much shorter than an RTT.</t>
 			<t>One possible implementation strategy for pacing uses a leaky bucket algorithm, where the capacity of the "bucket" is limited to the maximum burst size and the rate that the "bucket" fills is determined by the above function.</t>
