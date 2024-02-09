@@ -299,7 +299,7 @@
 		    that may be included in IS to IS Hellos (IIH) or
 		    Partial Sequence Number PDUs (PSNPs). It allows
 		    IS-IS implementations to advertise flooding-related
-			parameters parameters and capabilities which may be
+			parameters and capabilities which may be
 		    used by the peer to support faster flooding.
 		</t>
 		<t>Type: 21</t>
@@ -426,7 +426,7 @@
           PSNPs.
 			</t>
 
-			<t>The receiver SHOULD reduce its partialSNPInterval. The choice of this lower value is a local choice. It may depend on the available processing power of the node, the number of adjacencies, and the requirement to synchronize the LSDB more quickly. 200 ms seems to be a reasonable value.</t>
+			<t>For the generation of PSNPs, the receiver SHOULD use a partialSNPInterval smaller than the one defined in [ISO10589]. The choice of this lower value is a local choice. It may depend on the available processing power of the node, the number of adjacencies, and the requirement to synchronize the LSDB more quickly. 200 ms seems to be a reasonable value.</t>
 			<t>
 			  In addition to the timer-based
 			  partialSNPInterval, the receiver SHOULD keep
@@ -439,17 +439,24 @@
 			  allows for more frequent PSNPs, giving
 			  faster feedback to the sender. Outside of
 			  the burst case, the usual time-based PSNP
-			  approach comes into effect. The LPP SHOULD
-			  also be less than or equal to 90 as this is
+			  approach comes into effect.</t>
+			  <t> The smaller the LPP, the faster the feedback to the sender 
+			  and possibly the higher the rate if the rate is limited by the
+			   end to end RTT (link RTT + time to acknowledge). But the higher
+			    the number of PSNPs sent and hence possibly the CPU and IO load
+				on both the sender and receiver.
+			  The LPP should
+			   be less than or equal to 90 as this is
 			  the maximum number of LSPs that can be
 			  acknowledged in a PSNP at common MTU sizes,
 			  hence waiting longer would not reduce the
 			  number of PSNPs sent but would delay the
-			  acknowledgements. Based on experimental
+			  acknowledgements. LPP should not be chosen too high as
+			  the congestion control starts with a congestion window of LPP+1.
+			  Based on experimental
 			  evidence, 15 unacknowledged LSPs is a good
 			  value assuming that the Receive Window is
-			  at least 30 and that 
-			  both the transmitter and receiver have reasonably fast CPUs. More
+			  at least 30. More
 			  frequent PSNPs gives the transmitter more
 			  feedback on receiver progress, allowing the
 			  transmitter to continue transmitting while
@@ -477,7 +484,7 @@
 
 					<t>Complete Sequence Number PDUs (CSNPs) and PSNPs</t>
 				</list>Implementations today may prioritize the reception of Hellos
-        over LSPs and Sequence Number Packets (SNPs) in order to prevent a burst of LSP updates from
+        over LSPs and Sequence Number PDUs (SNPs) in order to prevent a burst of LSP updates from
         triggering an adjacency timeout which in turn would require additional
         LSPs to be updated.</t>
 
@@ -498,8 +505,7 @@
         transmitted. It may also make it more likely that a receiver becomes
         overwhelmed by LSP transmissions.</t>
 
-			<t>Therefore implementations SHOULD prioritize the
-        receipt of Hellos and then SNPs over LSPs. Implementations MAY also prioritize IS-IS packets over other less critical protocols.</t>
+			<t>Therefore implementations SHOULD prioritize IS-IS PDU on the way from the incoming interface to the IS-IS process. The relative priority of packets in decreasing order SHOULD be: Hellos, SNPs, LSPs. Implementations MAY also prioritize IS-IS packets over other protocols which are less critical for the router or network, less sensitive to delay or more bursty (e.g., BGP).</t>
 		</section>
 
 	</section>
@@ -510,8 +516,8 @@
 			<t>Ensuring the goodput between two entities is a layer-4 responsibility as per the OSI model. A typical example is the TCP protocol defined in
 				<xref target="RFC9293"></xref> that provides flow control, congestion control, and reliability.
 			</t>
-			<t>Flow control creates a control loop between a transmiter and a receiver so that the transmitter does not overwhelm the receiver. TCP provides a means for the receiver to govern the amount of data sent by the sender through the use of a sliding window.</t>
-			<t>Congestion control creates multiple interacting control loops between multiple transmitters and multiple receivers to prevent the transmitters  from overwhelming the overall network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and consists of a link that is typically over-sized compared to the capability of the IS-IS speakers, but may also include components inside both routers such as a switching fabric, line card CPU, and forwarding plane buffers that may experience congestion. These resources may be shared across multiple IS-IS adjacencies for the system and it is the responsibility of congestion control to ensure that these are shared reasonably.</t>
+			<t>Flow control creates a control loop between a transmitter and a receiver so that the transmitter does not overwhelm the receiver. TCP provides a means for the receiver to govern the amount of data sent by the sender through the use of a sliding window.</t>
+			<t> Congestion control prevents the set of transmitters from overwhelming the network on the path. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and consists of a link that is typically over-sized compared to the capability of the IS-IS speakers, but may also include components inside both routers such as a switching fabric, line card CPU, and forwarding plane buffers that may experience congestion. These resources may be shared across multiple IS-IS adjacencies for the system and it is the responsibility of congestion control to ensure that these are shared reasonably.</t>
 			<t>Reliability provides loss detection and recovery. IS-IS already has mechanisms to ensure the reliable transmission of LSPs. This is not changed by this document.</t>
 
 			<t>The following two sections provide two Flow and/or Congestion control algorithms that may be implemented by taking advantage of the extensions defined in this document. The signal that these IS-IS extensions defined in  <xref target="FloodingTLV"/> and  <xref target="Receiver"/> provide are generic and are designed to support different sender-side algorithms. A sender can unilaterally choose a different algorithm to use.</t>
@@ -533,8 +539,8 @@
 		    size of the receive window, in units of LSPs, is
 		    initialized with the value advertised by the
 		    receiver in the Receive Window sub-TLV. If no
-		    value is advertised, the transmitter should
-		    initialize rwin with its own local value.
+			value is advertised, the transmitter should
+			initialize rwin with its locally configured value for this neighbor.
 				</t>
 				<t>
 		    When the transmitter sends a set of LSPs to the
@@ -545,14 +551,17 @@
 		    rwin never goes negative.
 				</t>
 
+			<t>The RWIN value is of importance when the RTT is the limiting factor for the throughput. In this case the optimal size is the desired LSP rate divided by the RTT. The RTT being the addition of the link RTT plus the time taken by the receiver to acknowledge the first received LSP in its PSNP. 50 or 100 may be reasonable default numbers. As an example, a RWIN of 100 requires a control plane input buffer of 150 ko per neighbor assuming an IS-IS MTU of 1500 octets and limits the throughput to 10000 LSPs per second and per neighbor for a link RTT of 10 ms. With a same RWIN, the throughput limitation is 2000 LSP per second when the RTT is 50ms. That's the maximum throughput assuming no other limitations such as CPU limitations.</t>
 
 				<section anchor="TLVoperationP2P" title="Operation on a point to point interface">
 
-					<t>By sending the Receive Window sub-TLV, a node advertises to its neighbor its ability to receive that many un-acknowledged LSPs from the neighbor, without an intervening delay. This is akin to a receive window or sliding window in flow control. In some implementations, this value should reflect the IS-IS socket buffer size. Special care must be taken to leave space for CSNPs and PSNPs (SNPs) and IIHs if they share the same input queue. In this case, this document suggests advertising an LSP Receive Window corresponding to half the size of the IS-IS input queue. </t>
+					<t>By sending the Receive Window sub-TLV, a node advertises to its neighbor its ability to receive that many un-acknowledged LSPs from the neighbor. This is akin to a receive window or sliding window in flow control. In some implementations, this value should reflect the IS-IS socket buffer size. Special care must be taken to leave space for CSNPs and PSNPs and IIHs if they share the same input queue. In this case, this document suggests advertising an LSP Receive Window corresponding to half the size of the IS-IS input queue. </t>
 
 					<t>By advertising an LSP Transmission Interval sub-TLV, a node advertises its ability to receive LSPs separated by at least the advertised value, outside of LSP bursts.</t>
 
-					<t>The LSP transmitter MUST NOT exceed these parameters. After having sent a full burst of un-acknowledged LSPs, it MUST send the subsequent LSPs with a minimum of LSP Transmission Interval between LSP transmissions. For CPU scheduling reasons, this rate MAY be averaged over a small period, e.g., 10-30ms.</t>
+					<t>By advertising an LSP Burst Size sub-TLV, a node advertises its ability to receive that number of LSPs back-to-back.</t>
+
+					<t>The LSP transmitter MUST NOT exceed these parameters. After having sent a full burst of LSPs, it MUST send the subsequent LSPs with a minimum of LSP Transmission Interval between LSP transmissions. For CPU scheduling reasons, this rate MAY be averaged over a small period, e.g., 10-30ms.</t>
 
 					<t>If either the LSP transmitter or receiver does not adhere to these parameters, for example because of transient conditions, this doesn't result in a fatal condition for IS-IS operation. In the worst case, an LSP is lost at the receiver and this situation is already remedied by mechanisms in <xref target="ISO10589"/>.
 					After a few seconds, neighbors will exchange PSNPs (for point-to-point interfaces) or CSNPs (for broadcast interfaces) and recover from the lost LSPs. This worst case should be avoided as those additional seconds impact convergence time since the LSDB is not fully synchronized. Hence it is better to err on the conservative side and to under-run the receiver rather than over-run it.</t>
@@ -562,42 +571,7 @@
 				<section title="Operation on a
 						broadcast LAN
 						interface">
-				  <t>
-				    In order for the LSP Receive Window
-				    to be a useful parameter, an LSP
-				    transmitter needs to be able to
-				    keep track of the number of
-				    un-acknowledged LSPs it has sent
-				    to a given LSP receiver. On a LAN
-				    there is no explicit
-				    acknowledgment of the receipt of
-				    LSPs between a given LSP
-				    transmitter and a given LSP
-				    receiver. However, an LSP
-				    transmitter on a LAN can infer
-				    whether any LSP receiver on the
-				    LAN has requested retransmission
-				    of LSPs from the DIS by monitoring
-				    PSNPs generated on the LAN. If no
-				    PSNPs have been generated on the
-				    LAN for a suitable period of time,
-				    then an LSP transmitter can safely
-				    set the number of un-acknowledged
-				    LSPs to zero. Since this suitable
-				    period of time is much higher than
-				    the fast acknowledgment of LSPs
-				    defined in <xref
-				    target="LSPACKRate"/>, the
-				    sustainable transmission rate of
-				    LSPs will be much slower on a LAN
-				    interface than on a point-to-point
-				    interface. The Receive Window is
-				    still very useful for the first
-				    set of LSPs sent, especially in
-				    the case of a single node failure
-				    that requires the flooding of a
-				    relatively small number of LSPs.
-				  </t>
+				  <t>Flow and congestion control on a LAN interface is out of scope for this document.</t>
 				</section>
 
 
@@ -633,15 +607,15 @@
 
 				<t>Two practical signals are given below.</t>
 
-				<t>Timers: When receiving acknowledgements, a sender estimates the acknowledgement time of the receiver. Based on this estimation, it can infer that a packet was lost, and infer congestion on the path.</t>
+				<t>Delay: When receiving acknowledgements, a sender estimates the acknowledgement time of the receiver. Based on this estimation, it can infer that a packet was lost, and infer congestion on the path.</t>
 				<t>There can be a timer per LSP, but this can become costly for implementations. It is possible to use only a single timer t1 for all LSPs: during t1, sent LSPs are recorded in a list list_1. Once the RTT is over, list_1 is kept and another list list_2 is used to store the next LSPs. LSPs are removed from the lists when acked. At the end of the second t1 period, every LSP in list_1 should have been acked, so list_1 is checked to be empty. list_1 can then be reused for the next RTT.</t>
-				<t>There are multiple strategies to set the timeout value t1. It should be based on measurements of the maximum acknowledgement time (MAT) of each PSNP. The simplest one is to use an exponential moving average of the MATs, like <xref target="RFC6298"/>. A more elaborate one is to take a running maximum of the MATs over a period of a few seconds. This value should include a margin of error to avoid false positives (e.g., estimated MAT measure variance) which would have a significant impact on performance.</t>
+				<t>There are multiple strategies to set the timeout value t1. It should be based on measurements of the maximum acknowledgement time (MAT) of each PSNP. The simplest one is to use three times the RTT. Alternatively an exponential moving average of the MATs, like <xref target="RFC6298"/>. A more elaborate one is to take a running maximum of the MATs over a period of a few seconds. This value should include a margin of error to avoid false positives (e.g., estimated MAT measure variance) which would have a significant impact on performance.</t>
 
-				<t> Reordering: a sender can record its sending order and check that acknowledgements arrive in the same order as LSPs. This makes an additional assumption and should ideally be backed up by a confirmation by the receiver that this assumption holds. The O flag defined in <xref target="Flags"/> serves this purpose. </t>
+				<t> Loss: if the receiver has signaled the O-flag (Ordered acknowledgement) <xref target="Flags"/>, a sender MAY record its sending order and check that acknowledgements arrive in the same order. If not, some LSPs are missing and this MAY be used to trigger a congestion signal.</t>
 
 			</section>
 
-			<section anchor="CC1Refinement1" title="Refinement 1">
+			<section anchor="CC1Refinement" title="Refinement">
 				<t>With the algorithm presented above, if congestion is detected, cwin goes back to its initial value, and does not use the information gathered in previous congestion avoidance phases.</t>
 
 				<t>It is possible to use a fast recovery phase once congestion is detected, to avoid going through this linear rate of growth from scratch. When congestion is detected, a fast recovery threshold frthresh is set to frthresh = cwin / 2. In this fast recovery phase, for every acked LSP, cwin += 1. Once cwin reaches frthresh, the algorithm goes back to the congestion avoidance phase.</t>
@@ -667,9 +641,7 @@
 				</figure>
 
 			</section>
-			<section anchor="CC1Refinement2" title="Refinement 2">
-				<t>The rates of increase were inspired from TCP <xref target="RFC5681"/>, but it is possible that a different rate of increase for cwin in the congestion avoidance phase actually yields better results due to the low RTT values in most IS-IS deployments.</t>
-			</section>
+
 			<section anchor="cc_remarks" title="Remarks">
 			  <t>
 			    This algorithm's performance is dependent
@@ -693,7 +665,7 @@
 		
 		<section anchor="Pacing" title="Pacing">
 			<t>As discussed in <xref target="RFC9002" sectionFormat="comma" section="7.7" /> a sender SHOULD pace sending of all in-flight LSPs based on input from the congestion controller.</t>
-			<t>Sending multiple packets without any delay between them creates a packet burst that might cause short-term congestion and losses. Senders MUST either use pacing or limit such bursts. Senders SHOULD limit bursts to the initial congestion window. A sender with knowledge that the receiver can absorb larger bursts, such as by receiving the LSP Burst Size sub-TLV from this receiver may use a higher limit.</t>
+			<t>Sending multiple packets without any delay between them creates a packet burst that might cause short-term congestion and losses. Senders MUST either use pacing or limit such bursts. Senders SHOULD limit bursts to LSP Burst Size.</t>
 			<t>Senders can implement pacing as they choose. A perfectly paced sender spreads packets evenly over time. For a window-based congestion controller, such as the one in this section, that rate can be computed by averaging the congestion window over the RTT. Expressed as an inter-packet interval in units of time:</t>
 			<t>interval = (SRTT / cwin) / N</t> 
 						<t>SRTT is the smoothed round-trip time [RFC6298]</t>
@@ -902,7 +874,7 @@
 </section>
 
 <section anchor="Acknowledgments" title="Acknowledgments">
-<t>The authors would like to thank Henk Smit, Sarah Chen, Xuesong Geng, Pierre Francois, Hannes Gredler, Acee Lindem and John Scudder for their reviews, comments and suggestions.</t>
+<t>The authors would like to thank Henk Smit, Sarah Chen, Xuesong Geng, Pierre Francois, Hannes Gredler, Acee Lindem, Mirja Kuhlewind and John Scudder for their reviews, comments and suggestions.</t>
 <t>The authors would like to thank David Jacquet, Sarah Chen, and Qiangzhou Gao for the tests performed on commercial implementations and their identification of some limiting factors.</t>
 </section>
 </middle>
