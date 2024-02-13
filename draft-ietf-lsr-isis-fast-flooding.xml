@@ -442,9 +442,9 @@
 			  approach comes into effect.</t>
 			  <t> The smaller the LPP, the faster the feedback to the sender 
 			  and possibly the higher the rate if the rate is limited by the
-			   end to end RTT (link RTT + time to acknowledge). But the higher
-			    the number of PSNPs sent and hence possibly the CPU and IO load
-				on both the sender and receiver.
+			   end to end RTT (link RTT + time to acknowledge). This may result
+			   in an increase in the number of PSNPs sent which may increase CPU
+			   and IO load on both the sender and receiver.
 			  The LPP should
 			   be less than or equal to 90 as this is
 			  the maximum number of LSPs that can be
@@ -505,7 +505,7 @@
         transmitted. It may also make it more likely that a receiver becomes
         overwhelmed by LSP transmissions.</t>
 
-			<t>Therefore implementations SHOULD prioritize IS-IS PDU on the way from the incoming interface to the IS-IS process. The relative priority of packets in decreasing order SHOULD be: Hellos, SNPs, LSPs. Implementations MAY also prioritize IS-IS packets over other protocols which are less critical for the router or network, less sensitive to delay or more bursty (e.g., BGP).</t>
+			<t>Therefore implementations SHOULD prioritize IS-IS PDUs on the way from the incoming interface to the IS-IS process. The relative priority of packets in decreasing order SHOULD be: Hellos, SNPs, LSPs. Implementations MAY also prioritize IS-IS packets over other protocols which are less critical for the router or network, less sensitive to delay or more bursty (e.g., BGP).</t>
 		</section>
 
 	</section>
@@ -726,13 +726,13 @@
           on signaling from the receiver.</t>
         </section>
 
-        <section anchor="Ex2-tx" title="Transmitter Based Flow Control">
+        <section anchor="Ex2-tx" title="Transmitter Based Congestion Control">
           <t>The congestion control algorithm described in this section does
           not depend upon direct signaling from the receiver. Instead it
           adapts the transmission rate based on measurement of the actual
           rate of acknowledgments received.</t>
 
-          <t>When flow control is necessary, it can be implemented
+          <t>When congestion control is necessary, it can be implemented
           based on knowledge of the current flooding
           rate and the current acknowledgement rate. Such an algorithm is a
           local matter and there is no requirement or intent to standardize an
@@ -745,7 +745,7 @@
           interfaces and SHOULD be consistent network wide.</t>
 
           <t>When the current rate of LSP transmission (LSPTxRate) exceeds the
-          capabilities of the receiver, the flow control algorithm needs to
+          capabilities of the receiver, the congestion control algorithm needs to
           quickly and aggressively reduce the LSPTxRate. Slower
           responsiveness is likely to result in a larger number of
           retransmissions which can introduce much longer delays in
@@ -756,12 +756,12 @@
           done when the neighbor has demonstrated its ability to sustain the
           current LSPTxRate.</t>
 
-          <t>The flow control algorithm MUST NOT assume the receive
+          <t>The congestion control algorithm MUST NOT assume the receive
           performance of a neighbor is static, i.e., it MUST handle
           transient conditions which result in a slower or faster receive rate
           on the part of a neighbor.</t>
 
-          <t>The flow control algorithm SHOULD consider the expected delay
+          <t>The congestion control algorithm SHOULD consider the expected delay
           time in receiving an acknowledgment. It therefore incorporates the
           neighbor partialSNPInterval (<xref target="partialSNPI"/>) to help
           determine whether acknowlegments are keeping pace with the rate of
