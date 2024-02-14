@@ -517,7 +517,7 @@
 				<xref target="RFC9293"></xref> that provides flow control, congestion control, and reliability.
 			</t>
 			<t>Flow control creates a control loop between a transmitter and a receiver so that the transmitter does not overwhelm the receiver. TCP provides a means for the receiver to govern the amount of data sent by the sender through the use of a sliding window.</t>
-			<t> Congestion control prevents the set of transmitters from overwhelming the network on the path. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and consists of a link that is typically over-sized compared to the capability of the IS-IS speakers, but may also include components inside both routers such as a switching fabric, line card CPU, and forwarding plane buffers that may experience congestion. These resources may be shared across multiple IS-IS adjacencies for the system and it is the responsibility of congestion control to ensure that these are shared reasonably.</t>
+			<t> Congestion control prevents the set of transmitters from overwhelming the path of the packets between two IS-IS implementations. This path typically includes a point-to-point link between two IS-IS neighbors which is usually over-sized compared to the capability of the IS-IS speakers, but potentially some internal elements inside each neighbor such as switching fabric, line card CPU, and forwarding plane buffers that may experience congestion. These resources may be shared across multiple IS-IS adjacencies for the system and it is the responsibility of congestion control to ensure that these are shared reasonably.</t>
 			<t>Reliability provides loss detection and recovery. IS-IS already has mechanisms to ensure the reliable transmission of LSPs. This is not changed by this document.</t>
 
 			<t>The following two sections provide two Flow and/or Congestion control algorithms that may be implemented by taking advantage of the extensions defined in this document. The signal that these IS-IS extensions defined in  <xref target="FloodingTLV"/> and  <xref target="Receiver"/> provide are generic and are designed to support different sender-side algorithms. A sender can unilaterally choose a different algorithm to use.</t>
@@ -551,7 +551,7 @@
 		    rwin never goes negative.
 				</t>
 
-			<t>The RWIN value is of importance when the RTT is the limiting factor for the throughput. In this case the optimal size is the desired LSP rate divided by the RTT. The RTT being the addition of the link RTT plus the time taken by the receiver to acknowledge the first received LSP in its PSNP. 50 or 100 may be reasonable default numbers. As an example, a RWIN of 100 requires a control plane input buffer of 150 ko per neighbor assuming an IS-IS MTU of 1500 octets and limits the throughput to 10000 LSPs per second and per neighbor for a link RTT of 10 ms. With a same RWIN, the throughput limitation is 2000 LSP per second when the RTT is 50ms. That's the maximum throughput assuming no other limitations such as CPU limitations.</t>
+			<t>The RWIN value is of importance when the RTT is the limiting factor for the throughput. In this case the optimal size is the desired LSP rate multiplied by the RTT. The RTT being the addition of the link RTT plus the time taken by the receiver to acknowledge the first received LSP in its PSNP. 50 or 100 may be reasonable default numbers. As an example, a RWIN of 100 requires a control plane input buffer of 150 ko per neighbor assuming an IS-IS MTU of 1500 octets and limits the throughput to 10000 LSPs per second and per neighbor for a link RTT of 10 ms. With the same RWIN, the throughput limitation is 2000 LSP per second when the RTT is 50ms. That's the maximum throughput assuming no other limitations such as CPU limitations.</t>
 
 				<section anchor="TLVoperationP2P" title="Operation on a point to point interface">
 
@@ -596,7 +596,7 @@
    ----------------+
 					</artwork>
 				</figure>
-				<t>The algorithm starts with cwin = cwin0 = LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin. When LSPs are exchanged, cwin LSPs will be acknowledged in 1 RTT, meaning cwin(t) = t/RTT + cwin0. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
+				<t>The algorithm starts with cwin = cwin0 = LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin without exceeding RWIN. When LSPs are exchanged, cwin LSPs will be acknowledged in 1 RTT, meaning cwin(t) = t/RTT + cwin0. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
 
 				<t>When updating cwin, it must not become higher than the number of LSPs waiting to be sent, otherwise the sending will not be paced by the receiving of acks. Said differently, tx pressure is needed to maintain and increase cwin.</t>
 
