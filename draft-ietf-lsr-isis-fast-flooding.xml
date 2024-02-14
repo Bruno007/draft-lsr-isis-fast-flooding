@@ -334,7 +334,7 @@
 			<t>Type: 2</t>
 			<t>Length: 4 octets</t>
 			<t>Value: minimum interval, in micro-seconds, between two consecutive LSPs received after LSP Burst Size LSPs have been received</t>
-			<t>The LSP Transmission Interval is an advertisement of the receiver's steady-state LSP reception rate.</t>
+			<t>The LSP Transmission Interval is an advertisement of the receiver's sustainable LSP reception rate. This rate may be safely used by a sender which do not support the flow control or congestion algorithm. It may also be used as the minimal safe rate by flow control or congestion algorithms in unexpected cases, e.g., when the receiver is not acknowledging LSPs anymore. </t>
 
 		</section>
 		<section anchor="LPP" title="LSPs Per PSNP sub-TLV">
