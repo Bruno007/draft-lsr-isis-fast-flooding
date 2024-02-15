@@ -334,7 +334,9 @@
 			<t>Type: 2</t>
 			<t>Length: 4 octets</t>
 			<t>Value: minimum interval, in micro-seconds, between two consecutive LSPs received after LSP Burst Size LSPs have been received</t>
+
 			<t>The LSP Transmission Interval is an advertisement of the receiver's sustainable LSP reception rate. This rate may be safely used by a sender which do not support the flow control or congestion algorithm. It may also be used as the minimal safe rate by flow control or congestion algorithms in unexpected cases, e.g., when the receiver is not acknowledging LSPs anymore. </t>
+
 
 		</section>
 		<section anchor="LPP" title="LSPs Per PSNP sub-TLV">
@@ -516,8 +518,10 @@
 			<t>Ensuring the goodput between two entities is a layer-4 responsibility as per the OSI model. A typical example is the TCP protocol defined in
 				<xref target="RFC9293"></xref> that provides flow control, congestion control, and reliability.
 			</t>
+
 			<t>Flow control creates a control loop between a transmitter and a receiver so that the transmitter does not overwhelm the receiver. TCP provides a means for the receiver to govern the amount of data sent by the sender through the use of a sliding window.</t>
 			<t> Congestion control prevents the set of transmitters from overwhelming the path of the packets between two IS-IS implementations. This path typically includes a point-to-point link between two IS-IS neighbors which is usually over-sized compared to the capability of the IS-IS speakers, but potentially some internal elements inside each neighbor such as switching fabric, line card CPU, and forwarding plane buffers that may experience congestion. These resources may be shared across multiple IS-IS adjacencies for the system and it is the responsibility of congestion control to ensure that these are shared reasonably.</t>
+
 			<t>Reliability provides loss detection and recovery. IS-IS already has mechanisms to ensure the reliable transmission of LSPs. This is not changed by this document.</t>
 
 			<t>The following two sections provide two Flow and/or Congestion control algorithms that may be implemented by taking advantage of the extensions defined in this document. The signal that these IS-IS extensions defined in  <xref target="FloodingTLV"/> and  <xref target="Receiver"/> provide are generic and are designed to support different sender-side algorithms. A sender can unilaterally choose a different algorithm to use.</t>
@@ -563,6 +567,7 @@
 
 					<t>The LSP transmitter MUST NOT exceed these parameters. After having sent a full burst of LSPs, it MUST send the subsequent LSPs with a minimum of LSP Transmission Interval between LSP transmissions. For CPU scheduling reasons, this rate MAY be averaged over a small period, e.g., 10-30ms.</t>
 
+
 					<t>If either the LSP transmitter or receiver does not adhere to these parameters, for example because of transient conditions, this doesn't result in a fatal condition for IS-IS operation. In the worst case, an LSP is lost at the receiver and this situation is already remedied by mechanisms in <xref target="ISO10589"/>.
 					After a few seconds, neighbors will exchange PSNPs (for point-to-point interfaces) or CSNPs (for broadcast interfaces) and recover from the lost LSPs. This worst case should be avoided as those additional seconds impact convergence time since the LSDB is not fully synchronized. Hence it is better to err on the conservative side and to under-run the receiver rather than over-run it.</t>
 
@@ -571,6 +576,7 @@
 				<section title="Operation on a
 						broadcast LAN
 						interface">
+
 				  <t>Flow and congestion control on a LAN interface is out of scope for this document.</t>
 				</section>
 
@@ -596,7 +602,9 @@
    ----------------+
 					</artwork>
 				</figure>
+
 				<t>The algorithm starts with cwin = cwin0 = LPP + 1. In the congestion avoidance phase, cwin increases as LSPs are acked: for every acked LSP, cwin += 1 / cwin without exceeding RWIN. When LSPs are exchanged, cwin LSPs will be acknowledged in 1 RTT, meaning cwin(t) = t/RTT + cwin0. Since the RTT is low in many IS-IS deployments, the sending rate can reach fast rates in short periods of time.</t>
+
 
 				<t>When updating cwin, it must not become higher than the number of LSPs waiting to be sent, otherwise the sending will not be paced by the receiving of acks. Said differently, tx pressure is needed to maintain and increase cwin.</t>
 
@@ -609,9 +617,11 @@
 
 				<t>Delay: When receiving acknowledgements, a sender estimates the acknowledgement time of the receiver. Based on this estimation, it can infer that a packet was lost, and infer congestion on the path.</t>
 				<t>There can be a timer per LSP, but this can become costly for implementations. It is possible to use only a single timer t1 for all LSPs: during t1, sent LSPs are recorded in a list list_1. Once the RTT is over, list_1 is kept and another list list_2 is used to store the next LSPs. LSPs are removed from the lists when acked. At the end of the second t1 period, every LSP in list_1 should have been acked, so list_1 is checked to be empty. list_1 can then be reused for the next RTT.</t>
+
 				<t>There are multiple strategies to set the timeout value t1. It should be based on measurements of the maximum acknowledgement time (MAT) of each PSNP. The simplest one is to use three times the RTT. Alternatively an exponential moving average of the MATs, like <xref target="RFC6298"/>. A more elaborate one is to take a running maximum of the MATs over a period of a few seconds. This value should include a margin of error to avoid false positives (e.g., estimated MAT measure variance) which would have a significant impact on performance.</t>
 
 				<t> Loss: if the receiver has signaled the O-flag (Ordered acknowledgement) <xref target="Flags"/>, a sender MAY record its sending order and check that acknowledgements arrive in the same order. If not, some LSPs are missing and this MAY be used to trigger a congestion signal.</t>
+
 
 			</section>
 
@@ -665,7 +675,9 @@
 		
 		<section anchor="Pacing" title="Pacing">
 			<t>As discussed in <xref target="RFC9002" sectionFormat="comma" section="7.7" /> a sender SHOULD pace sending of all in-flight LSPs based on input from the congestion controller.</t>
+
 			<t>Sending multiple packets without any delay between them creates a packet burst that might cause short-term congestion and losses. Senders MUST either use pacing or limit such bursts. Senders SHOULD limit bursts to LSP Burst Size.</t>
+
 			<t>Senders can implement pacing as they choose. A perfectly paced sender spreads packets evenly over time. For a window-based congestion controller, such as the one in this section, that rate can be computed by averaging the congestion window over the RTT. Expressed as an inter-packet interval in units of time:</t>
 			<t>interval = (SRTT / cwin) / N</t> 
 						<t>SRTT is the smoothed round-trip time [RFC6298]</t>
@@ -757,6 +769,7 @@
           current LSPTxRate.</t>
 
           <t>The congestion control algorithm MUST NOT assume the receive
+
           performance of a neighbor is static, i.e., it MUST handle
           transient conditions which result in a slower or faster receive rate
           on the part of a neighbor.</t>
@@ -874,7 +887,9 @@
 </section>
 
 <section anchor="Acknowledgments" title="Acknowledgments">
+
 <t>The authors would like to thank Henk Smit, Sarah Chen, Xuesong Geng, Pierre Francois, Hannes Gredler, Acee Lindem, Mirja Kuhlewind and John Scudder for their reviews, comments and suggestions.</t>
+
 <t>The authors would like to thank David Jacquet, Sarah Chen, and Qiangzhou Gao for the tests performed on commercial implementations and their identification of some limiting factors.</t>
 </section>
 </middle>
