@@ -551,7 +551,7 @@
 		    rwin never goes negative.
 				</t>
 
-			<t>The RWIN value is of importance when the RTT is the limiting factor for the throughput. In this case the optimal size is the desired LSP rate multiplied by the RTT. The RTT being the addition of the link RTT plus the time taken by the receiver to acknowledge the first received LSP in its PSNP. 50 or 100 may be reasonable default numbers. As an example, a RWIN of 100 requires a control plane input buffer of 150 ko per neighbor assuming an IS-IS MTU of 1500 octets and limits the throughput to 10000 LSPs per second and per neighbor for a link RTT of 10 ms. With the same RWIN, the throughput limitation is 2000 LSP per second when the RTT is 50ms. That's the maximum throughput assuming no other limitations such as CPU limitations.</t>
+			<t>The RWIN value is of importance when the RTT is the limiting factor for the throughput. In this case the optimal size is the desired LSP rate multiplied by the RTT. The RTT being the addition of the link RTT plus the time taken by the receiver to acknowledge the first received LSP in its PSNP. 50 or 100 may be reasonable default numbers. As an example, a RWIN of 100 requires a control plane input buffer of 150 kbytes per neighbor assuming an IS-IS MTU of 1500 octets and limits the throughput to 10000 LSPs per second and per neighbor for a link RTT of 10 ms. With the same RWIN, the throughput limitation is 2000 LSP per second when the RTT is 50ms. That's the maximum throughput assuming no other limitations such as CPU limitations.</t>
 
 				<section anchor="TLVoperationP2P" title="Operation on a point to point interface">
 
