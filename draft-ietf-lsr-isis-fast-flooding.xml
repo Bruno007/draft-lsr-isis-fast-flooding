@@ -685,10 +685,10 @@
 			typically depends on the buffer size on the I/O path from the packet forwarding engine to the control plane which is very platform dependent.
 			It also depends upon how many IS-IS neighbors share this I/O path as typically all neighbors will send the same LSPs at the same time.
 			It may also depends on other incoming control plane traffic sharing that I/O path, how much bursty they are, and how much incoming IS-IS packets
-			are prioritized over those other incoming control plane traffic.  As indicated in section 3, the historical behavior from [ISO10589] allow a value
+			are prioritized over those other incoming control plane traffic.  As indicated in <xref target="HISTORY"/>, the historical behavior from <xref target="ISO10589"/> allow a value
 			of 10 hence 10 seems conservative. From a network operation perspective, it would be beneficial for the burst size to be equal or higher than the
 			number of LSPs which may be originated by a single failure. For a node failure, this is equal to the number of IS-IS neighbors of the failed link.
-			LSP Transmission Interval could be in the range of 1 ms to 33 ms. As indicated in section 3, the historical behavior from [ISO10589] is 33ms hence
+			LSP Transmission Interval could be in the range of 1 ms to 33 ms. As indicated in <xref target="HISTORY"/>, the historical behavior from <xref target="ISO10589"/> is 33ms hence
 			is conservative. The LSP Transmission Interval is an advertisement of the receiver's sustainable LSP reception rate taking into account all aspects
 			and in particular the control plane CPU and the I/O bandwidth. It's expected to improve (hence decrease) as hardware and software naturally improve
 			over time. It should be chosen relatively conservatively as this rate may be used by the sender in all conditions including worst conditions.
@@ -700,7 +700,7 @@
 			to be the main parameter to improve performance. It depends on how fast the IS-IS flooding process may be scheduled by the CPU. It's  safe as if the
 			receiver CPU is busy, it will naturally delay its acknowledgments which provides a negative feedback loop. The value advertised to the sender should be
 			conservative (high enough) as this value could be used by the sender to send some LSPs rather than keep waiting for acknowledgments. Sending a value
-			smaller than the [ISO10589] default may be beneficial to faster trigger re-transmission of lost LSPs rather than waiting. Receive Window in the range
+			smaller than the <xref target="ISO10589"/> default may be beneficial to faster trigger re-transmission of lost LSPs rather than waiting. Receive Window in the range
 			of 30 to 200 with a proposed 60. In general, the larger the better the performance on links with high RTT. The higher the number and the higher the
 			IS-IS neighbor, the higher the use of control plane memory so it's mostly dependent on the amount of memory which may be dedicated to IS-IS flooding
 			and the number of IS-IS neighbors. From a memory usage perspective, a priori, one could use the same value than the TCP receive window, but the value
