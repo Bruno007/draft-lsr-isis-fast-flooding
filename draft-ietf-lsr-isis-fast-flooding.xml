@@ -275,7 +275,8 @@
 
 		<t>Although modern implementations have not strictly adhered to the 33
       millisecond interval, it is commonplace for implementations to limit
-      the flooding rate to the same order of magnitude similar as the 33 ms value.</t>
+      the flooding rate to the same order of magnitude: tens of milliseconds,
+	  and not the single digits or fractions of milliseconds that are needed today.</t>
 
 		<t>In the past 20 years, significant work on achieving faster
       convergence, more specifically sub-second convergence, has resulted in
@@ -317,11 +318,11 @@
 			IIHs and PSNPs are not reliably exchanged, and
 			may never be received, parameters SHOULD be
 			sent even if there is no change in value since
-			the last transmission.  For a parameter which
-			has never been advertised, an IS SHOULD use
-			its local default value.  That value SHOULD be
+			the last transmission.  For a parameter that
+            has never been advertised, an IS uses
+			its local default value. That value SHOULD be
 			configurable on a per-node basis and MAY be
-			configurable on a per-interface basis.
+            configurable on a per-interface basis.
 		</t>
 		<section anchor="LSPBurstSize" title="LSP Burst Size sub-TLV">
 			<t>The LSP Burst Size sub-TLV advertises the maximum number of LSPs that the node can receive without an intervening delay between LSP transmissions.</t>
@@ -347,7 +348,7 @@
 		<section anchor="Flags" title="Flags sub-TLV">
 			<t>The sub-TLV Flags advertises a set of flags.</t>
 			<t>Type: 4</t>
-			<t>Length: Indicates the length in octets (1-8) of the Value field. The length SHOULD be the minimum required to send all bits that are set.</t>
+			<t>Length: Indicates the length in octets (1-8) of the Value field. The length is the minimum required to send all bits that are set.</t>
 			<t>Value: List of flags.</t>
 			<t>
 				<figure>
