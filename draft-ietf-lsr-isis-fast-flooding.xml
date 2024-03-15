@@ -682,11 +682,11 @@
 
 			<t>Static values are dependent on the CPU generation, class of router and network scaling, typically the number of adjacent neighbors.
 			Examples at the time of publication are provided below. LSP Burst Size could be in the range 5 to 20. From a router perspective, this value
-			typically depends on the buffer size on the I/O path from the packet forwarding engine to the control plane which is very platform dependent.
+			typically depends on the queue(s) size(s) on the I/O path from the packet forwarding engine to the control plane which is very platform dependent.
 			It also depends upon how many IS-IS neighbors share this I/O path as typically all neighbors will send the same LSPs at the same time.
 			It may also depend on other incoming control plane traffic sharing that I/O path, how bursty they are, and how many incoming IS-IS packets
-			are prioritized over other incoming control plane traffic.  As indicated in <xref target="HISTORY"/>, the historical behavior from <xref target="ISO10589"/> allow a value
-			of 10 hence 10 seems conservative. From a network operation perspective, it would be beneficial for the burst size to be equal or higher than the
+			are prioritized over other incoming control plane traffic.  As indicated in <xref target="HISTORY"/>, the historical behavior from <xref target="ISO10589"/> allows a value
+			of 10 hence 10 seems conservative. From a network operation perspective, it would be beneficial for the burst size to be equal to or higher than the
 			number of LSPs which may be originated by a single failure. For a node failure, this is equal to the number of IS-IS neighbors of the failed node.
 			LSP Transmission Interval could be in the range of 1 ms to 33 ms. As indicated in <xref target="HISTORY"/>, the historical behavior from <xref target="ISO10589"/> is 33ms hence
 			is conservative. The LSP Transmission Interval is an advertisement of the receiver's sustainable LSP reception rate taking into account all aspects
@@ -697,13 +697,13 @@
 			LPP could be in the range of 5 to 90 with a proposed 15. A smaller value provides faster feedback at the cost of the small overhead of more PSNP messages.
 			PartialSNPInterval could be in the range 50ms to 500ms with a proposed 200ms.
 			One may distinguish the value used locally from the value signaled to the sender. The value used locally benefits from being small but is not expected
-			to be the main parameter to improve performance. It depends on how fast the IS-IS flooding process may be scheduled by the CPU. It's  safe as, even when the
+			to be the main parameter to improve performance. It depends on how fast the IS-IS flooding process may be scheduled by the CPU. It's safe as, even when the
 			receiver CPU is busy, it will naturally delay its acknowledgments which provides a negative feedback loop. The value advertised to the sender should be
 			conservative (high enough) as this value could be used by the sender to send some LSPs rather than keep waiting for acknowledgments. Receive Window in the range
 			of 30 to 200 with a proposed 60. In general, the larger the better the performance on links with high RTT. The higher the number and the higher the
-			IS-IS neighbor, the higher the use of control plane memory so it's mostly dependent on the amount of memory which may be dedicated to IS-IS flooding
+			number of IS-IS neighbors, the higher the use of control plane memory so it's mostly dependent on the amount of memory which may be dedicated to IS-IS flooding
 			and the number of IS-IS neighbors. From a memory usage perspective, a priori, one could use the same value as the TCP receive window, but the value
-			advertised should not be higher than the buffer of the "socket" used (which is typically different from the TCP socket).</t>
+			advertised should not be higher than the buffer of the "socket" used.</t>
 			</section>
 
 
