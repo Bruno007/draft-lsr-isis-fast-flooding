@@ -359,8 +359,8 @@
          +-+-+-+-+-+-+-+-+...</artwork>
 				</figure>
 			</t>
-			<t>When the O-flag (Ordered acknowledgement) is set, the LSPs will be
-			acknowledged in the order they are received: a
+			<t>An LSP receiver sets the O-flag to indicate to the LSP sender that
+			it will acknowledge the LSPs in the order as received. A
 			PSNP acknowledging N LSPs is acknowledging the
 			N oldest LSPs received. The order inside the
 			PSNP is meaningless. If the sender keeps track
