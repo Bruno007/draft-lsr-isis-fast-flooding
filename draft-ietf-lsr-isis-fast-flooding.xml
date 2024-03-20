@@ -348,7 +348,7 @@
 		<section anchor="Flags" title="Flags sub-TLV">
 			<t>The sub-TLV Flags advertises a set of flags.</t>
 			<t>Type: 4</t>
-			<t>Length: Indicates the length in octets (1-8) of the Value field. The length is the minimum required to send all bits that are set.</t>
+			<t>Length: Indicates the length in octets (1-8) of the Value field. The length SHOULD be the minimum required to send all bits that are set.</t>
 			<t>Value: List of flags.</t>
 			<t>
 				<figure>
