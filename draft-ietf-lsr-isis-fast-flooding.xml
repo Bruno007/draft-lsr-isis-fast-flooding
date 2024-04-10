@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-08" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-09" ipr="trust200902">
 	<front>
 		<title abbrev="IS-IS Fast Flooding">IS-IS Fast Flooding</title>
 		<author fullname="Bruno Decraene" initials="B." surname="Decraene">
@@ -524,7 +524,7 @@
 			<t>The following two sections provide two Flow and/or Congestion control algorithms that may be implemented by taking advantage of the extensions defined in this document. The signal that these IS-IS extensions defined in  <xref target="FloodingTLV"/> and  <xref target="Receiver"/> provide are generic and are designed to support different sender-side algorithms. A sender can unilaterally choose a different algorithm to use.</t>
 		</section>
 
-		<section anchor="Algo1" title="Congestion and Flow Control algorithm 1">
+		<section anchor="RWIN-Algo" title="Congestion and Flow Control algorithm">
 
 
 			<section anchor="FlowControl" title="Flow control">
@@ -718,12 +718,12 @@
 			<t>As discussed in  <xref target="TLVoperationLAN"/>, the solution is more effective on point-to-point adjacencies. Hence a broadcast interface (e.g., Ethernet) only shared by two IS-IS neighbors should be configured as point-to-point in order to have more effective flooding.</t>
 		</section>
 	</section>
-	<section anchor="Algo2" title="Congestion Control algorithm 2">
-	          <t>This section describes a congestion control algorithm based on
+	<section anchor="TxSide" title="Transmitter side congestion control considerations">
+	          <t>This section describes an approach to congestion control algorithm based on
         performance measured by the transmitter without dependance on
         signaling from the receiver.</t>
 
-        <section anchor="Ex2-arch" title="Router Architecture Discussion">
+        <section anchor="Router-arch" title="Router Architecture Discussion">
           <t>(The following description is an abstraction - implementation
           details vary.)</t>
 
@@ -754,23 +754,24 @@
           queues and determine what value should be advertised as a current
           receive window.</t>
 
-          <t>The following section describes a congestion control algorithm
+          <t>The following section describes an approach to congestion control
           based on performance measured by the transmitter without dependance
           on signaling from the receiver.</t>
         </section>
 
-        <section anchor="Ex2-tx" title="Transmitter Based Congestion Control">
-          <t>The congestion control algorithm described in this section does
+        <section anchor="Ex2-tx" title="Guidelines for transmitter side congestion controls">
+          <t>The approach described in this section does
           not depend upon direct signaling from the receiver. Instead it
           adapts the transmission rate based on measurement of the actual
           rate of acknowledgments received.</t>
 
           <t>When congestion control is necessary, it can be implemented
           based on knowledge of the current flooding
-          rate and the current acknowledgement rate. Such an algorithm is a
-          local matter and there is no requirement or intent to standardize an
-          algorithm. There are a number of aspects which serve as guidelines
-          which can be described. </t>
+          rate and the current acknowledgement rate. The algorithm used is a
+          local matter. There is no requirement to standardize it but 
+          there are a number of aspects which serve as guidelines
+          which can be described. Algorithms based on this approach SHOULD
+		  follow the recommendations described below. </t>
 
           <t>A maximum LSP transmission rate (LSPTxMax) SHOULD be
           configurable. This represents the fastest LSP transmission rate
@@ -789,8 +790,8 @@
           done when the neighbor has demonstrated its ability to sustain the
           current LSPTxRate.</t>
 
-          <t>The congestion control algorithm MUST NOT assume the receive
-          performance of a neighbor is static, i.e., it MUST handle
+          <t>The congestion control algorithm SHOULD NOT assume the receive
+          performance of a neighbor is static, i.e., it SHOULD handle
           transient conditions which result in a slower or faster receive rate
           on the part of a neighbor.</t>
 
