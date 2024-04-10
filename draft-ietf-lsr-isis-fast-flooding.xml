@@ -718,7 +718,7 @@
 			<t>As discussed in  <xref target="TLVoperationLAN"/>, the solution is more effective on point-to-point adjacencies. Hence a broadcast interface (e.g., Ethernet) only shared by two IS-IS neighbors should be configured as point-to-point in order to have more effective flooding.</t>
 		</section>
 	</section>
-	<section anchor="TxSide" title="Transmitter side congestion control considerations">
+	<section anchor="TxSide" title="Transmitter Based Congestion Control Approach">
 	          <t>This section describes an approach to congestion control algorithm based on
         performance measured by the transmitter without dependance on
         signaling from the receiver.</t>
