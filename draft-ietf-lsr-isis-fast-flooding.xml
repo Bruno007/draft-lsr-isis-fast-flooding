@@ -156,9 +156,10 @@
       Link State PDUs (LSPs) are propagated network-wide. The speed of
       propagation is a key contributor to convergence time.</t>
 
-			<t>Historically, flooding rates have been conservative - on the order of
+			<t>IS-IS base specification <xref target="ISO10589"/> does not use flow
+			or congestion control but static flooding rates.
+			Historically, flooding rates have been conservative - on the order of
       10s of LSPs/second. This is the result of guidance in the base specification
-				<xref target="ISO10589"/>
  and early deployments when the CPU and
       interface speeds were much slower and the area scale 
          much smaller than they are today.</t>
@@ -187,6 +188,11 @@
 	use. It is also possible that the flooding topology can be
 	reduced in ways that prefer the use of neighbors that support
 	improved flooding performance.</t>
+
+    <t>This document improves flooding rate by allowing the signaling 
+	of flooding parameters <xref target="FloodingTLV"/>, specifying
+	performance improvement on the receiver <xref target="Receiver"/>
+	and introducing flow and/or congestion control <xref target="Control"/>.<t>
 
 	</section>
 
