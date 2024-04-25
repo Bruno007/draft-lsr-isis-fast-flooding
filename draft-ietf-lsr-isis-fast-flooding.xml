@@ -765,18 +765,18 @@
           adapts the transmission rate based on measurement of the actual
           rate of acknowledgments received.</t>
 
-          <t>When congestion control is necessary, it can be implemented
+          <t>Flow control is not used by this approach. When congestion control is necessary, it can be implemented
           based on knowledge of the current flooding
           rate and the current acknowledgement rate. The algorithm used is a
           local matter. There is no requirement to standardize it but 
           there are a number of aspects which serve as guidelines
-          which can be described. Algorithms based on this approach SHOULD
+          which can be described. Algorithms based on this approach should
 		  follow the recommendations described below. </t>
 
-          <t>A maximum LSP transmission rate (LSPTxMax) SHOULD be
+          <t>A maximum LSP transmission rate (LSPTxMax) should be
           configurable. This represents the fastest LSP transmission rate
-          which will be attempted. This value SHOULD be applicable to all
-          interfaces and SHOULD be consistent network wide.</t>
+          which will be attempted. This value should be applicable to all
+          interfaces and should be consistent network wide.</t>
 
           <t>When the current rate of LSP transmission (LSPTxRate) exceeds the
           capabilities of the receiver, the congestion control algorithm needs to
@@ -786,16 +786,16 @@
           convergence.</t>
 
           <t>Dynamic increase of the rate of LSP transmission (LSPTxRate)
-           (i.e., faster) SHOULD be done less aggressively and only be
+           (i.e., faster) should be done less aggressively and only be
           done when the neighbor has demonstrated its ability to sustain the
           current LSPTxRate.</t>
 
-          <t>The congestion control algorithm SHOULD NOT assume the receive
-          performance of a neighbor is static, i.e., it SHOULD handle
+          <t>The congestion control algorithm should not assume the receive
+          performance of a neighbor is static, i.e., it should handle
           transient conditions which result in a slower or faster receive rate
           on the part of a neighbor.</t>
 
-          <t>The congestion control algorithm SHOULD consider the expected delay
+          <t>The congestion control algorithm should consider the expected delay
           time in receiving an acknowledgment. It therefore incorporates the
           neighbor partialSNPInterval (<xref target="partialSNPI"/>) to help
           determine whether acknowlegments are keeping pace with the rate of
