@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-09" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-10" ipr="trust200902">
 	<front>
 		<title abbrev="IS-IS Fast Flooding">IS-IS Fast Flooding</title>
 		<author fullname="Bruno Decraene" initials="B." surname="Decraene">
@@ -192,7 +192,7 @@
     <t>This document improves flooding rate by allowing the signaling 
 	of flooding parameters <xref target="FloodingTLV"/>, specifying
 	performance improvement on the receiver <xref target="Receiver"/>
-	and introducing flow and/or congestion control <xref target="Control"/>.<t>
+	and introducing flow and/or congestion control <xref target="Control"/>.</t>
 
 	</section>
 
@@ -560,8 +560,8 @@
 
 			<t>The RWIN value is of importance when the RTT is the limiting factor for the throughput. In this case the optimal size is the desired LSP rate multiplied by the RTT. The RTT being the addition of the link RTT plus the time taken by the receiver to acknowledge the first received LSP in its PSNP. 50 or 100 may be reasonable default numbers. As an example, a RWIN of 100 requires a control plane input buffer of 150 kbytes per neighbor assuming an IS-IS MTU of 1500 octets and limits the throughput to 10000 LSPs per second and per neighbor for a link RTT of 10 ms. With the same RWIN, the throughput limitation is 2000 LSP per second when the RTT is 50ms. That's the maximum throughput assuming no other limitations such as CPU limitations.</t>
 
-			<t>Equally RTT is of importance for the performance. That’s why the 
-			performance improvement on the receiver, specified in section <xref target="Receiver"/>, are 
+			<t>Equally RTT is of importance for the performance. Hence the 
+			performance improvements on the receiver, as specified in section <xref target="Receiver"/>, are 
 			important to achieve good throughput. If the receiver does not support 
 			those performance improvement, in the worst case (small RWIN and high 
 			RTT) the throughput will be limited by the LSP Transmission Interval 
@@ -591,7 +591,7 @@
 
 		</section>
 		<section anchor="CongestionControl" title="Congestion Control">
-		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link -which is typically over-sized compared to the capability of the IS-IS speakers- and the internal of the receiver -with an overview presented in <xref target="outer-arch"/>-.
+		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link -which is typically over-sized compared to the capability of the IS-IS speakers- and the internal of the receiver -with an overview presented in <xref target="Router-arch"/>-.
 		  Only implementing flow control <xref target="FlowControl"/> is expected to give good results and be enough if the internals or the receiver is not significantly dropping LSP. Otherwise, adding congestion control will help handling
 		  congestion of LSPs in the receiver internals.</t>
 			<t>This section describes one sender-side congestion control algorithm largely inspired by the TCP congestion control algorithm <xref target="RFC5681"></xref>.</t>
