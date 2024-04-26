@@ -189,10 +189,10 @@
 	reduced in ways that prefer the use of neighbors that support
 	improved flooding performance.</t>
 
-    <t>This document improves flooding rate by allowing the signaling 
-	of flooding parameters <xref target="FloodingTLV"/>, specifying
-	performance improvement on the receiver <xref target="Receiver"/>
-	and introducing flow and/or congestion control <xref target="Control"/>.</t>
+    <t>With the goal of supporting faster flooding, this document introduces the signaling
+	of additional flooding related parameters <xref target="FloodingTLV"/>, specifies some
+	performance improvements on the receiver <xref target="Receiver"/>
+	and introduces the use of flow and/or congestion control <xref target="Control"/>.</t>
 
 	</section>
 
@@ -397,7 +397,7 @@
       </section>
 
 		<section anchor="RWIN" title="Receive Window sub-TLV">
-			<t>The Receive Window (RWIN) sub-TLV advertises the maximum number of unacknowledged LSPs that the node can receive for this adjacency.</t>
+			<t>The Receive Window (RWIN) sub-TLV advertises the maximum number of unacknowledged LSPs that the node can receive for a given adjacency.</t>
 			<t>Type: 6</t>
 			<t>Length: 2 octets</t>
 			<t>Value: maximum number of unacknowledged LSPs</t>			
@@ -560,10 +560,10 @@
 
 			<t>The RWIN value is of importance when the RTT is the limiting factor for the throughput. In this case the optimal size is the desired LSP rate multiplied by the RTT. The RTT being the addition of the link RTT plus the time taken by the receiver to acknowledge the first received LSP in its PSNP. 50 or 100 may be reasonable default numbers. As an example, a RWIN of 100 requires a control plane input buffer of 150 kbytes per neighbor assuming an IS-IS MTU of 1500 octets and limits the throughput to 10000 LSPs per second and per neighbor for a link RTT of 10 ms. With the same RWIN, the throughput limitation is 2000 LSP per second when the RTT is 50ms. That's the maximum throughput assuming no other limitations such as CPU limitations.</t>
 
-			<t>Equally RTT is of importance for the performance. Hence the 
-			performance improvements on the receiver, as specified in section <xref target="Receiver"/>, are 
+			<t>Equally RTT is of importance for the performance. That is why the 
+			performance improvements on the receiver specified in section <xref target="Receiver"/> are 
 			important to achieve good throughput. If the receiver does not support 
-			those performance improvement, in the worst case (small RWIN and high 
+			those performance improvements, in the worst case (small RWIN and high 
 			RTT) the throughput will be limited by the LSP Transmission Interval 
 			as defined in section <xref target="InterfaceLSPTransmissionInterval"/>.</t>
 
@@ -591,9 +591,9 @@
 
 		</section>
 		<section anchor="CongestionControl" title="Congestion Control">
-		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link -which is typically over-sized compared to the capability of the IS-IS speakers- and the internal of the receiver -with an overview presented in <xref target="Router-arch"/>-.
+		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link -which is typically over-sized compared to the capability of the IS-IS speakers- and the internal architecture of the receiver. An overview discussion of this point can be found in <xref target="Router-arch"/>.
 		  Only implementing flow control <xref target="FlowControl"/> is expected to give good results and be enough if the internals or the receiver is not significantly dropping LSP. Otherwise, adding congestion control will help handling
-		  congestion of LSPs in the receiver internals.</t>
+		  congestion of LSPs in the receiver.</t>
 			<t>This section describes one sender-side congestion control algorithm largely inspired by the TCP congestion control algorithm <xref target="RFC5681"></xref>.</t>
 			<t>The proposed algorithm uses a variable congestion window 'cwin'. It plays a role similar to the receive window described above. The main difference is that cwin is adjusted dynamically according to various events described below.</t>
 
