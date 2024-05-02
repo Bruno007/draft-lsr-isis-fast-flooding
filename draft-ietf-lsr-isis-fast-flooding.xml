@@ -591,7 +591,7 @@
 
 		</section>
 		<section anchor="CongestionControl" title="Congestion Control">
-		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link -which is typically over-sized compared to the capability of the IS-IS speakers- and the internal architecture of the receiver. An overview discussion of this point can be found in <xref target="Router-arch"/>.
+		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link which is typically over-sized compared to the capability of the IS-IS speakers.
 		  Only implementing flow control <xref target="FlowControl"/> is expected to give good results and be enough if the internals or the receiver is not significantly dropping LSP. Otherwise, adding congestion control will help handling
 		  congestion of LSPs in the receiver.</t>
 			<t>This section describes one sender-side congestion control algorithm largely inspired by the TCP congestion control algorithm <xref target="RFC5681"></xref>.</t>
@@ -764,10 +764,9 @@
           with varying priorities may be employed to process the incoming
           PDUs.</t>
 
-          <t>In such an architecture, it may be difficult for IS-IS in the
-          control plane to accurately track the state of the various input
-          queues and determine what value should be advertised as a current
-          receive window.</t>
+          <t>In such an architecture, it may be difficult for IS-IS in the 
+		  control plane to determine what value should be advertised as a 
+		  receive window.</t>
 
           <t>The following section describes an approach to congestion control
           based on performance measured by the transmitter without dependance
@@ -923,7 +922,7 @@
 </section>
 
 <section anchor="Acknowledgments" title="Acknowledgments">
-<t>The authors would like to thank Henk Smit, Sarah Chen, Xuesong Geng, Pierre Francois, Hannes Gredler, Acee Lindem, Mirja Kuhlewind and John Scudder for their reviews, comments and suggestions.</t>
+<t>The authors would like to thank Henk Smit, Sarah Chen, Xuesong Geng, Pierre Francois, Hannes Gredler, Acee Lindem, Mirja Kuhlewind, Zaheduzzaman Sarker and John Scudder for their reviews, comments and suggestions.</t>
 <t>The authors would like to thank David Jacquet, Sarah Chen, and Qiangzhou Gao for the tests performed on commercial implementations and their identification of some limiting factors.</t>
 </section>
 </middle>
