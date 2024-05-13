@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-10" ipr="trust200902">
+<rfc category="exp" docName="draft-ietf-lsr-isis-fast-flooding-11" ipr="trust200902">
 	<front>
 		<title abbrev="IS-IS Fast Flooding">IS-IS Fast Flooding</title>
 		<author fullname="Bruno Decraene" initials="B." surname="Decraene">
@@ -592,7 +592,7 @@
 		</section>
 		<section anchor="CongestionControl" title="Congestion Control">
 		  <t>Whereas flow control prevents the sender from overwhelming the receiver, congestion control prevents senders from overwhelming the network. For an IS-IS adjacency, the network between two IS-IS neighbors is relatively limited in scope and includes a single link which is typically over-sized compared to the capability of the IS-IS speakers.
-		  Only implementing flow control <xref target="FlowControl"/> is expected to give good results and be enough if the internals or the receiver is not significantly dropping LSP. Otherwise, adding congestion control will help handling
+		  In situations where the probability of LSP drop is low, flow control <xref target="FlowControl"/> is expected to give good results, without the need to implement congestion control. Otherwise, adding congestion control will help handling
 		  congestion of LSPs in the receiver.</t>
 			<t>This section describes one sender-side congestion control algorithm largely inspired by the TCP congestion control algorithm <xref target="RFC5681"></xref>.</t>
 			<t>The proposed algorithm uses a variable congestion window 'cwin'. It plays a role similar to the receive window described above. The main difference is that cwin is adjusted dynamically according to various events described below.</t>
